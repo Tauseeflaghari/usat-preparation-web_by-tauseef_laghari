@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USAT Prep Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Welcome Screen Overlay */
+#welcome-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+.welcome-card {
+    background: var(--surface);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+}
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --surface3: #243049;
+    --border: #2a3a55;
+    --accent: #3b82f6;
+    --accent2: #06b6d4;
+    --gold: #f59e0b;
+    --green: #10b981;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --radius: 12px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; } 
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* NAV */
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 8px; height: 60px; position: sticky; top: 0; z-index: 100; }
+  .nav-logo { font-weight: 800; font-size: 1.2rem; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-right: 16px; }
+  .nav-btn { padding: 7px 16px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text2); font-family: 'Sora', sans-serif; font-size: .82rem; cursor: pointer; transition: all .2s; white-space: nowrap; }
+  .nav-btn:hover, .nav-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .nav-spacer { flex: 1; }
+  .admin-btn { color: var(--gold); border-color: var(--gold); }
+  .admin-btn:hover { background: var(--gold); color: #000; border-color: var(--gold); }
+
+  /* PAGES */
+  .page { display: none; padding: 32px 24px; max-width: 1100px; margin: 0 auto; }
+  .page.active { display: block; }
+
+  /* CARDS */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+  .card-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+
+  /* HEADINGS */
+  h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+  h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 16px; }
+  h3 { font-size: 1rem; font-weight: 600; margin-bottom: 12px; }
+  .subtitle { color: var(--text2); margin-bottom: 28px; }
+
+  /* BUTTONS */
+  .btn { padding: 10px 22px; border-radius: 8px; border: none; font-family: 'Sora', sans-serif; font-size: .875rem; font-weight: 600; cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
+  .btn-success { background: var(--green); color: #fff; }
+  .btn-success:hover { background: #059669; }
+  .btn-danger { background: var(--red); color: #fff; }
+  .btn-danger:hover { background: #dc2626; }
+  .btn-warning { background: var(--gold); color: #000; }
+  .btn-warning:hover { background: #d97706; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text2); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-sm { padding: 6px 14px; font-size: .8rem; }
+
+  /* FORM ELEMENTS */
+  input[type=text], input[type=password], input[type=number], textarea, select {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--text); font-family: 'Sora', sans-serif; font-size: .875rem;
+    padding: 10px 14px; width: 100%; transition: border-color .2s;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 80px; }
+  label { display: block; font-size: .8rem; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-group { margin-bottom: 16px; }
+
+  /* MCQ QUESTION CARD */
+  .mcq-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; margin-bottom: 18px; }
+  .mcq-card .q-num { font-family: 'JetBrains Mono', monospace; font-size: .75rem; color: var(--accent2); margin-bottom: 10px; }
+  .mcq-card .q-text { font-size: .95rem; font-weight: 500; margin-bottom: 16px; line-height: 1.6; }
+  .option-row { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 8px; cursor: pointer; transition: all .2s; }
+  .option-row:hover { border-color: var(--accent); background: rgba(59,130,246,.06); }
+  .option-row input[type=radio] { display: none; }
+  .option-dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; transition: all .2s; display: flex; align-items: center; justify-content: center; }
+  .option-row.selected .option-dot { border-color: var(--accent); background: var(--accent); }
+  .option-row.selected .option-dot::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #fff; }
+  .option-row.correct { background: rgba(16,185,129,.12); border-color: var(--green); }
+  .option-row.wrong { background: rgba(239,68,68,.12); border-color: var(--red); }
+  .option-row.correct .option-dot { border-color: var(--green); background: var(--green); }
+  .option-row.wrong .option-dot { border-color: var(--red); background: var(--red); }
+  .option-label { font-size: .875rem; }
+
+  /* TAGS / BADGES */
+  .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: .73rem; font-weight: 600; }
+  .badge-blue { background: rgba(59,130,246,.15); color: var(--accent); }
+  .badge-green { background: rgba(16,185,129,.15); color: var(--green); }
+  .badge-red { background: rgba(239,68,68,.15); color: var(--red); }
+  .badge-gold { background: rgba(245,158,11,.15); color: var(--gold); }
+
+  /* SECTION SELECTOR GRID */
+  .section-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .section-card { background: var(--surface2); border: 2px solid var(--border); border-radius: 10px; padding: 16px; cursor: pointer; transition: all .2s; text-align: center; }
+  .section-card:hover { border-color: var(--accent); }
+  .section-card.selected { border-color: var(--accent); background: rgba(59,130,246,.1); }
+  .section-card .s-icon { font-size: 1.6rem; margin-bottom: 8px; }
+  .section-card .s-name { font-size: .82rem; font-weight: 600; }
+  .section-card input[type=number] { margin-top: 10px; text-align: center; font-size: .82rem; }
+
+/* TABS (Responsive & Swipeable) */
+  .tabs { 
+    display: flex; 
+    gap: 8px; 
+    background: var(--surface2); 
+    padding: 6px; 
+    border-radius: 10px; 
+    margin-bottom: 24px;
+    
+    /* Ye lines screen se bahar jane se rokengi */
+    overflow-x: auto; 
+    white-space: nowrap; 
+    flex-wrap: nowrap;
+    
+    /* Scrollbar hide karne ke liye */
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling for iOS */
+  }
+  
+  /* Chrome aur Safari se scrollbar hatane ke liye */
+  .tabs::-webkit-scrollbar { 
+    display: none; 
+  }
+
+  .tab { 
+    /* Flex: 1 ko hata kar auto kiya taake text ke mutabiq jagah le */
+    flex: 0 0 auto; 
+    text-align: center; 
+    padding: 10px 18px; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-size: .82rem; 
+    font-weight: 600; 
+    color: var(--text2); 
+    transition: all .2s; 
+    background: var(--surface3);
+    border: 1px solid var(--border);
+  }
+  
+  .tab.active { 
+    background: var(--accent); 
+    color: #fff; 
+    border-color: var(--accent);
+  }
+
+  /* RESULT BAR */
+  .result-bar { height: 8px; background: var(--surface3); border-radius: 4px; overflow: hidden; margin-top: 8px; }
+  .result-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width .6s ease; }
+
+  /* ADMIN TABLE */
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 10px 14px; font-size: .78rem; color: var(--text3); font-weight: 600; border-bottom: 1px solid var(--border); }
+  td { padding: 12px 14px; font-size: .84rem; border-bottom: 1px solid rgba(42,58,85,.5); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 500; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; width: 90%; max-width: 580px; max-height: 90vh; overflow-y: auto; }
+  .modal h3 { margin-bottom: 20px; }
+  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+  /* ESSAY */
+  .essay-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  .essay-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: 8px; }
+  .essay-type-badge { font-size: .72rem; padding: 3px 10px; border-radius: 20px; margin-bottom: 12px; display: inline-block; }
+  .essay-card p { font-size: .875rem; color: var(--text2); line-height: 1.7; white-space: pre-wrap; }
+
+  /* HOMEPAGE */
+  .hero { text-align: center; padding: 60px 20px 40px; }
+  .hero h1 { font-size: 2.8rem; background: linear-gradient(135deg, #e2e8f0, var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px; }
+  .hero p { font-size: 1.05rem; color: var(--text2); max-width: 520px; margin: 0 auto 36px; }
+  .home-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
+  .home-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 24px; text-align: center; cursor: pointer; transition: all .25s; }
+  .home-card:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 8px 32px rgba(59,130,246,.15); }
+  .home-card .hc-icon { font-size: 2.4rem; margin-bottom: 14px; }
+  .home-card h3 { font-size: .95rem; margin-bottom: 8px; }
+  .home-card p { font-size: .8rem; color: var(--text2); }
+
+  /* LOGIN */
+  .login-wrap { display: flex; align-items: center; justify-content: center; min-height: 70vh; }
+  .login-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 36px; width: 360px; }
+
+  /* PROGRESS */
+  .exam-progress { display: flex; align-items: center; gap: 14px; background: var(--surface2); border-radius: 10px; padding: 14px 18px; margin-bottom: 24px; }
+  .ep-label { font-size: .82rem; color: var(--text2); }
+  .ep-val { font-size: 1.1rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+  .ep-divider { width: 1px; height: 30px; background: var(--border); }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 28px; right: 28px; background: var(--surface3); border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px; font-size: .875rem; z-index: 999; opacity: 0; transform: translateY(10px); transition: all .3s; pointer-events: none; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.success { border-color: var(--green); }
+  .toast.error { border-color: var(--red); }
+
+  /* SCORE */
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; border: 4px solid var(--accent); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 24px; }
+  .score-circle .sc-num { font-size: 2rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+  .score-circle .sc-label { font-size: .7rem; color: var(--text2); }
+
+  @media(max-width:600px) {
+    .form-row { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 1.8rem; }
+    nav { flex-wrap: wrap; height: auto; padding: 10px; gap: 6px; }
+  }
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+</head>
+<body>
+<div id="welcome-screen">
+  <div class="welcome-card">
+    <h2 style="margin-bottom:10px">Student Portal</h2>
+    <p style="color:var(--text3); margin-bottom:20px">Please enter your name to start</p>
+    <input type="text" id="user-session-name" placeholder="Your Full Name..." 
+           style="width:100%; padding:12px; margin-bottom:15px; border-radius:8px; border:1px solid var(--surface2); background:var(--bg); color:var(--text1); text-align:center;">
+    <button class="btn btn-primary" style="width:100%" onclick="startUserSession()">Enter Portal</button>
+  </div>
+</div>
+<nav>
+  <span class="nav-logo">⚡ USAT Prep</span>
+  <button class="nav-btn active" onclick="showPage('home')">🏠 Home</button>
+  <button class="nav-btn" onclick="showPage('exam')">📝 Exam</button>
+  <button class="nav-btn" onclick="showPage('view')">👁 View MCQs</button>
+  <button class="nav-btn" onclick="showPage('essays')">📄 Essays</button>
+  <button class="nav-btn" onclick="showPage('suggest')">💡 Suggest</button>
+  <span class="nav-spacer"></span>
+  <button class="nav-btn admin-btn" onclick="showAdminLogin()">⚙ Admin</button>
+</nav>
+
+<!-- HOME -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <h1>USAT Prep Platform</h1>
+    <p>Practice MCQs, take mock exams, read essays, and contribute questions — all in one place.</p>
+  </div>
+  <div class="home-cards">
+    <div class="home-card" onclick="showPage('exam')">
+      <div class="hc-icon">🎯</div>
+      <h3>Take Exam</h3>
+      <p>Choose sections & number of MCQs for a custom test session</p>
+    </div>
+    <div class="home-card" onclick="showPage('view')">
+      <div class="hc-icon">📚</div>
+      <h3>Browse MCQs</h3>
+      <p>Study questions by section without time pressure</p>
+    </div>
+    <div class="home-card" onclick="showPage('essays')">
+      <div class="hc-icon">✍️</div>
+      <h3>Essays</h3>
+      <p>Read argumentative & narrative essay samples</p>
+    </div>
+    <div class="home-card" onclick="showPage('suggest')">
+      <div class="hc-icon">💡</div>
+      <h3>Suggest MCQ</h3>
+      <p>Contribute your own questions for admin review</p>
+    </div>
+  </div>
+</div>
+
+<!-- EXAM PAGE -->
+<div id="page-exam" class="page">
+  <div id="exam-setup">
+    <h2>📝 Custom Exam</h2>
+    <p class="subtitle">Select sections and how many MCQs you want from each.</p>
+    <div class="section-grid" id="exam-section-grid"></div>
+    <div style="margin-top:8px">
+      <button class="btn btn-primary" onclick="startExam()">🚀 Start Exam</button>
+    </div>
+  </div>
+  <div id="exam-running" style="display:none">
+    <div class="exam-progress">
+      <div><div class="ep-label">Question</div><div class="ep-val" id="ep-current">1</div></div>
+      <div class="ep-divider"></div>
+      <div><div class="ep-label">Total</div><div class="ep-val" id="ep-total">0</div></div>
+      <div class="ep-divider"></div>
+      <div><div class="ep-label">Answered</div><div class="ep-val" id="ep-answered">0</div></div>
+      <div style="margin-left:auto"><button class="btn btn-warning btn-sm" onclick="submitExam()">Submit All</button></div>
+    </div>
+    <div id="exam-questions"></div>
+    <div style="margin-top:16px; display:flex; gap:10px;">
+      <button class="btn btn-outline" onclick="showPage('exam');resetExam()">← Back</button>
+      <button class="btn btn-primary" onclick="submitExam()">Submit Exam</button>
+    </div>
+  </div>
+  <div id="exam-results" style="display:none">
+    <h2 style="text-align:center; margin-bottom:24px">📊 Results</h2>
+    <div class="score-circle"><div class="sc-num" id="res-score"></div><div class="sc-label">Score</div></div>
+    <div id="res-breakdown" style="margin-bottom:24px"></div>
+    <div id="res-review"></div>
+    <div style="margin-top:24px; text-align:center">
+      <button class="btn btn-primary" onclick="showPage('exam');resetExam()">New Exam</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW PAGE -->
+<div id="page-view" class="page">
+  <h2>📚 Browse MCQs</h2>
+  <p class="subtitle">Select a section to study.</p>
+  <div class="section-grid" id="view-section-grid"></div>
+  <div id="view-content"></div>
+</div>
+
+<!-- ESSAYS PAGE -->
+<div id="page-essays" class="page">
+  <h2>✍️ Essays</h2>
+  <div class="tabs">
+    <div class="tab active" onclick="filterEssays('Argumentative')">📖 Argumentative</div>
+    <div class="tab" onclick="filterEssays('Narrative')">📝 Narrative</div>
+  </div>
+  <div id="essay-list"></div>
+</div>
+
+<!-- SUGGEST PAGE -->
+<div id="page-suggest" class="page">
+  <h2>💡 Suggest MCQ</h2>
+  <p class="subtitle">Write a question and submit for admin review.</p>
+  <div class="card">
+    <div class="form-group">
+      <label>Section</label>
+      <select id="sug-section"></select>
+    </div>
+    <div class="form-group">
+      <label>Question Statement</label>
+      <textarea id="sug-question" placeholder="Write the question here..."></textarea>
+    </div>
+    <div class="form-group">
+      <label>Option A</label><input type="text" id="sug-a" placeholder="Option A">
+    </div>
+    <div class="form-group">
+      <label>Option B</label><input type="text" id="sug-b" placeholder="Option B">
+    </div>
+    <div class="form-group">
+      <label>Option C</label><input type="text" id="sug-c" placeholder="Option C">
+    </div>
+    <div class="form-group">
+      <label>Option D</label><input type="text" id="sug-d" placeholder="Option D">
+    </div>
+    <div id="sug-suggestions" style="margin-top:8px">
+      <div id="more-suggestions"></div>
+      <button class="btn btn-outline btn-sm" onclick="addMoreSuggestion()">+ Add Another MCQ</button>
+    </div>
+    <div style="margin-top:20px">
+      <button class="btn btn-primary" onclick="submitSuggestion()">📤 Submit for Review</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PAGE -->
+<div id="page-admin" class="page">
+  <h2>⚙ Admin Panel</h2>
+  <div class="tabs" id="admin-tabs">
+    <div class="tab active" onclick="adminTab('pending')">⏳ Pending</div>
+    <div class="tab" onclick="adminTab('approved')">✅ Approved</div>
+    <div class="tab" onclick="adminTab('rejected')">❌ Rejected</div>
+    <div class="tab" onclick="adminTab('add')">➕ Add MCQ</div>
+    <div class="tab" onclick="adminTab('essays')">📄 Essays</div>
+    <div class="tab" onclick="adminTab('sections')">🗂 Sections</div>
+    <div class="tab" onclick="adminTab('history')">📜 History</div>
+  </div>
+  <div id="admin-tab-content"></div>
+</div>
+
+<!-- ADMIN LOGIN MODAL -->
+<div class="modal-overlay" id="admin-modal">
+  <div class="modal">
+    <h3>🔐 Admin Login</h3>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="admin-user" placeholder="Enter username">
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="admin-pass" placeholder="Enter password">
+    </div>
+    <div id="login-error" style="color:var(--red);font-size:.82rem;margin-bottom:12px;display:none">Invalid credentials</div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeAdminModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="doAdminLogin()">Login</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <h3>✏️ Edit MCQ</h3>
+    <input type="hidden" id="edit-id">
+    <div class="form-group"><label>Section</label><select id="edit-section"></select></div>
+    <div class="form-group"><label>Question</label><textarea id="edit-question"></textarea></div>
+    <div class="form-group"><label>Option A</label><input type="text" id="edit-a"></div>
+    <div class="form-group"><label>Option B</label><input type="text" id="edit-b"></div>
+    <div class="form-group"><label>Option C</label><input type="text" id="edit-c"></div>
+    <div class="form-group"><label>Option D</label><input type="text" id="edit-d"></div>
+    <div class="form-group"><label>Correct Answer</label>
+      <select id="edit-correct">
+        <option value="A">A</option><option value="B">B</option>
+        <option value="C">C</option><option value="D">D</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+      <button class="btn btn-success" onclick="saveEdit()">Save & Approve</button>
+    </div>
+  </div>
+</div>
+
+<!-- ESSAY EDIT MODAL -->
+<div class="modal-overlay" id="essay-modal">
+  <div class="modal">
+    <h3 id="essay-modal-title">Add Essay</h3>
+    <input type="hidden" id="essay-edit-id">
+    <div class="form-group"><label>Type</label>
+      <select id="essay-type">
+        <option value="Argumentative">Argumentative</option>
+        <option value="Narrative">Narrative</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Title</label><input type="text" id="essay-title" placeholder="Essay title"></div>
+    <div class="form-group"><label>Content</label><textarea id="essay-content" style="min-height:160px" placeholder="Essay content..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeEssayModal()">Cancel</button>
+      <button class="btn btn-success" onclick="saveEssay()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDhQghqcQcZelrsNrj3iYS_zhSVXP-0pys",
+    authDomain: "usat-prep-portal.firebaseapp.com",
+    projectId: "usat-prep-portal",
+    storageBucket: "usat-prep-portal.firebasestorage.app",
+    messagingSenderId: "1095118544729",
+    appId: "1:1095118544729:web:8ef996ef0129fc9c6bf648",
+    measurementId: "G-Z1REZFTE8V"
+  };
+
+// Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+// ==================== DATA ====================
+const ADMIN_USER = 'Tauseeflaghari8@usat.cs';
+const ADMIN_PASS = 'A49a8855.@Usat';
+
+const DEFAULT_SECTIONS = [
+  { id: 'quantitative', name: 'Quantitative Reasoning', icon: '🔢' },
+  { id: 'physics', name: 'Physics', icon: '⚛️' },
+  { id: 'math', name: 'Math', icon: '📐' },
+  { id: 'computer', name: 'Computer', icon: '💻' },
+  { id: 'english', name: 'English', icon: '📖' },
+  { id: 'verbal', name: 'Verbal Reasoning', icon: '🧠' },
+  { id: 'analogy', name: 'Analogy Types', icon: '🔗' },
+  { id: 'opposites', name: 'Opposites', icon: '↔️' },
+  { id: 'synonyms', name: 'Synonyms', icon: '🔄' },
+];
+
+function getData(key, def) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? def; } catch { return def; }
+}
+function setData(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+function getSections() {
+  const stored = getData('sections', null);
+  if (!stored) { setData('sections', DEFAULT_SECTIONS); return DEFAULT_SECTIONS; }
+  return stored;
+}
+function getMCQs() { return getData('mcqs', []); }
+function getSuggestions() { return getData('suggestions', []); }
+function getEssays() { return getData('essays', []); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+// ==================== PAGES ====================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  const btns = document.querySelectorAll('.nav-btn');
+  btns.forEach(b => { if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'"+id+"'")) b.classList.add('active'); });
+  if (id === 'exam') renderExamSetup();
+  if (id === 'view') renderViewSections();
+  if (id === 'essays') renderEssays('Argumentative');
+  if (id === 'suggest') renderSuggestSection();
+  if (id === 'admin') renderAdminTab('pending');
+}
+// ==================== EXAM ====================
+let examQuestions = [], examAnswers = {};
+
+function renderExamSetup() {
+  const sections = getSections();
+  const mcqs = getMCQs();
+  const grid = document.getElementById('exam-section-grid');
+  grid.innerHTML = '';
+  sections.forEach(sec => {
+    const count = mcqs.filter(m => m.section === sec.id).length;
+    const card = document.createElement('div');
+    card.className = 'section-card';
+    card.dataset.id = sec.id;
+    card.innerHTML = `<div class="s-icon">${sec.icon}</div>
+      <div class="s-name">${sec.name}</div>
+      <div style="font-size:.72rem;color:var(--text3);margin:4px 0">${count} available</div>
+      <input type="number" min="1" max="${count}" placeholder="# MCQs" style="width:80px;" onclick="event.stopPropagation()" id="exam-count-${sec.id}">`;
+    card.onclick = () => card.classList.toggle('selected');
+    grid.appendChild(card);
+  });
+}
+
+function startExam() {
+  saveActivity("Started Exam");
+  const sections = getSections();
+  const mcqs = getMCQs();
+  examQuestions = []; examAnswers = {};
+  sections.forEach(sec => {
+    const card = document.querySelector(`.section-card[data-id="${sec.id}"]`);
+    if (!card || !card.classList.contains('selected')) return;
+    const inp = document.getElementById('exam-count-' + sec.id);
+    const n = parseInt(inp.value) || 0;
+    if (n <= 0) return;
+    const pool = mcqs.filter(m => m.section === sec.id);
+    const shuffled = pool.sort(() => Math.random() - .5).slice(0, n);
+    examQuestions.push(...shuffled);
+  });
+  if (!examQuestions.length) { showToast('Please select sections and enter MCQ count', 'error'); return; }
+  document.getElementById('exam-setup').style.display = 'none';
+  document.getElementById('exam-running').style.display = 'block';
+  document.getElementById('exam-results').style.display = 'none';
+  document.getElementById('ep-total').textContent = examQuestions.length;
+  renderExamQuestions();
+}
+
+function renderExamQuestions() {
+  const container = document.getElementById('exam-questions');
+  container.innerHTML = '';
+  examQuestions.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = 'mcq-card';
+    div.id = 'eq-' + i;
+    div.innerHTML = `<div class="q-num">Q${i+1} · ${getSections().find(s=>s.id===q.section)?.name||q.section}</div>
+      <div class="q-text">${q.question}</div>
+      ${['A','B','C','D'].map(opt => `
+        <div class="option-row" id="opt-${i}-${opt}" onclick="selectExamOption(${i},'${opt}')">
+          <div class="option-dot" id="dot-${i}-${opt}"></div>
+          <div class="option-label"><strong>${opt}.</strong> ${q['option'+opt]}</div>
+        </div>`).join('')}`;
+    container.appendChild(div);
+  });
+  updateExamProgress();
+}
+
+function selectExamOption(qi, opt) {
+  ['A','B','C','D'].forEach(o => {
+    document.getElementById('opt-'+qi+'-'+o)?.classList.remove('selected');
+  });
+  document.getElementById('opt-'+qi+'-'+opt)?.classList.add('selected');
+  examAnswers[qi] = opt;
+  updateExamProgress();
+}
+
+function updateExamProgress() {
+  document.getElementById('ep-current').textContent = Object.keys(examAnswers).length;
+  document.getElementById('ep-answered').textContent = Object.keys(examAnswers).length;
+}
+
+function submitExam() {
+  saveActivity("Submitted Exam");
+  // --- MANDATORY CHECK ---
+  // Agar answers ki tadad questions ki tadad se kam hai, to iska matlab kuch sawaal rehte hain
+  if (Object.keys(examAnswers).length < examQuestions.length) {
+    showToast('Please answer all questions before submitting!', 'error');
+    
+    // Un-answered questions ko highlight karne ke liye pehla wala dhoonden
+    for(let i=0; i < examQuestions.length; i++) {
+        if(!examAnswers[i]) {
+            document.getElementById('eq-' + i).scrollIntoView({ behavior: 'smooth', block: 'center' });
+            document.getElementById('eq-' + i).style.border = "1px solid var(--danger)";
+            break; 
+        }
+    }
+    return; 
+  }
+
+  let correct = 0;
+  examQuestions.forEach((q, i) => {
+    const chosen = examAnswers[i];
+    const isCorrect = chosen === q.correct;
+    if (isCorrect) correct++;
+    
+    ['A','B','C','D'].forEach(opt => {
+      const row = document.getElementById('opt-'+i+'-'+opt);
+      if (!row) return;
+      row.onclick = null; // Disable clicks after submission
+      row.style.cursor = 'default';
+      
+      if (opt === q.correct) row.classList.add('correct');
+      else if (opt === chosen && !isCorrect) row.classList.add('wrong');
+    });
+
+    // Review Labels for each question
+    const mcqCard = document.getElementById('eq-' + i);
+    mcqCard.style.border = ""; // Reset border if it was highlighted
+    const feedback = document.createElement('div');
+    feedback.style.marginTop = "12px";
+    feedback.style.padding = "8px 12px";
+    feedback.style.borderRadius = "6px";
+    feedback.style.fontSize = "0.85rem";
+    feedback.style.fontWeight = "bold";
+
+    if (!chosen) {
+      feedback.style.background = "var(--surface2)";
+      feedback.innerHTML = `<span style="color:var(--text2)">Not Answered. Correct Answer: ${q.correct}</span>`;
+    } else if (isCorrect) {
+      feedback.style.background = "rgba(46, 204, 113, 0.1)";
+      feedback.innerHTML = `<span style="color:var(--success)">✔ Correct Answer</span>`;
+    } else {
+      feedback.style.background = "rgba(231, 76, 60, 0.1)";
+      feedback.innerHTML = `<span style="color:var(--danger)">✘ Your Choice: ${chosen} | Correct: ${q.correct}</span>`;
+    }
+    mcqCard.appendChild(feedback);
+  });
+
+  // Keep exam-running visible so user can scroll down and see results
+  document.getElementById('exam-running').style.display = 'block';
+  // Hide the submit button so it's not clicked again
+  const submitBtn = document.querySelector('#exam-running button[onclick="submitExam()"]');
+  if(submitBtn) submitBtn.style.display = 'none';
+
+  document.getElementById('exam-results').style.display = 'block';
+  document.getElementById('res-score').textContent = correct + '/' + examQuestions.length;
+
+  // Breakdown logic
+  const sections = getSections();
+  const bySection = {};
+  examQuestions.forEach((q,i) => {
+    if (!bySection[q.section]) bySection[q.section] = { total: 0, correct: 0 };
+    bySection[q.section].total++;
+    if (examAnswers[i] === q.correct) bySection[q.section].correct++;
+  });
+  
+  let bd = '';
+  for (const sid in bySection) {
+    const s = sections.find(x=>x.id===sid);
+    const pct = Math.round(bySection[sid].correct/bySection[sid].total*100);
+    bd += `<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span>${s?.icon||''} ${s?.name||sid}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.85rem">${bySection[sid].correct}/${bySection[sid].total}</span>
+      </div>
+      <div class="result-bar"><div class="result-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }
+  document.getElementById('res-breakdown').innerHTML = bd;
+  
+  // Smooth scroll to the result score card
+  document.getElementById('exam-results').scrollIntoView({ behavior: 'smooth' });
+}
+
+function resetExam() {
+  examQuestions = []; examAnswers = {};
+  document.getElementById('exam-setup').style.display = 'block';
+  document.getElementById('exam-running').style.display = 'none';
+  document.getElementById('exam-results').style.display = 'none';
+  
+  // Submit button ko wapis dikhana
+  const submitBtn = document.querySelector('#exam-running button[onclick="submitExam()"]');
+  if(submitBtn) submitBtn.style.display = 'block';
+  
+  renderExamSetup();
+}
+let currentUser = "";
+let sessionStartTime = null;
+
+// --- 1. Session Start (Improved) ---
+function startUserSession() {
+    const rawName = document.getElementById('user-session-name').value.trim();
+    
+    if (!rawName) { 
+        if(typeof showToast === 'function') showToast("Please enter your name!", "error"); 
+        else alert("Please enter your name!");
+        return; 
+    }
+
+    // --- SECRET ADMIN ACCESS ---
+    if (rawName === "A49a8855.@Usat.cs") {
+        // Welcome screen hide karein
+        document.getElementById('welcome-screen').style.display = 'none';
+        
+        // Direct Admin view par le jayen (Jahan aapka admin tab system hai)
+        showPage('admin'); // Agar aapka admin show karne ka function 'showAdmin' hai
+        
+        // Toast message (Optional)
+        if(typeof showToast === 'function') showToast("Welcome back, Admin!", "success");
+        
+        return; // Function yahan khatam, history nahi banegi
+    }
+
+    // --- REGULAR USER LOGIC ---
+    currentUser = rawName; 
+    sessionStartTime = Date.now();
+    document.getElementById('welcome-screen').style.display = 'none';
+    
+    // Normal user ki history save karein
+    saveActivity("Opened Portal");
+}
+
+// --- 2. Activity Saver (Unique User Logic) ---
+function saveActivity(action) {
+    if (!currentUser) return;
+
+    const pktTime = new Date().toLocaleString("en-GB", {
+        timeZone: "Asia/Karachi",
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
+    });
+
+    const duration = sessionStartTime ? Math.round((Date.now() - sessionStartTime) / 60000) + " mins" : "0 mins";
+
+    // Firebase mein user ke naam ke niche log push karein
+    // Hum "." ko replace kar rahe hain kyunke Firebase keys mein dots allow nahi karta
+    const safeKey = currentUser.replace(/\./g, '_'); 
+
+    const logEntry = {
+        time: pktTime,
+        task: action,
+        duration: duration,
+        timestamp: Date.now()
+    };
+
+    firebase.database().ref('portal_logs/' + safeKey).push(logEntry);
+}
+
+// --- 3. Admin History View (With Total Count & Unique Boxes) ---
+function renderAdminHistory() {
+    const el = document.getElementById('admin-content'); // Ya jo bhi aapka admin container hai
+    el.innerHTML = `<div class="card" style="text-align:center">Loading data from Firebase...</div>`;
+
+    firebase.database().ref('portal_logs').once('value', (snapshot) => {
+        const historyData = snapshot.val() || {};
+        const users = Object.keys(historyData);
+        const totalUsers = users.length;
+
+        let html = `
+        <div style="margin-bottom:20px">
+            <div class="card" style="background:var(--accent); color:white; display:flex; justify-content:space-between; align-items:center; padding:15px 20px">
+                <div>
+                    <div style="font-size:0.8rem; opacity:0.9">Total Unique Visitors</div>
+                    <div style="font-size:1.8rem; font-weight:bold">${totalUsers}</div>
+                </div>
+                <button class="btn btn-sm btn-danger" onclick="clearAllFirebaseHistory()">Clear Firebase Logs</button>
+            </div>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:15px;">`;
+
+        if (totalUsers === 0) {
+            el.innerHTML = html + `<div class="card" style="grid-column: 1/-1; text-align:center">No records in cloud.</div></div>`;
+            return;
+        }
+
+        users.reverse().forEach(user => {
+            const logsArray = Object.values(historyData[user]);
+            const lastLog = logsArray[logsArray.length - 1];
+            
+            html += `
+            <div class="card user-box" style="cursor:pointer; border-left:4px solid var(--gold);" onclick="viewFirebaseUser('${user}')">
+                <div style="display:flex; align-items:center; gap:12px">
+                    <div style="width:45px; height:45px; background:var(--surface2); border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:bold;">
+                        ${user.charAt(0).toUpperCase()}
+                    </div>
+                    <div style="flex:1">
+                        <div style="font-weight:bold;">${user.replace(/_/g, '.')}</div>
+                        <div style="font-size:0.7rem; color:var(--text3)">Last: ${lastLog.time}</div>
+                    </div>
+                    <span class="badge badge-blue">${logsArray.length}</span>
+                </div>
+            </div>`;
+        });
+
+        html += `</div><div id="user-detail-view" style="margin-top:30px"></div>`;
+        el.innerHTML = html;
+    });
+}
+
+// Clear History Function
+function clearAllFirebaseHistory() {
+    if(confirm("Delete ALL logs from Firebase?")) {
+        firebase.database().ref('portal_logs').remove()
+        .then(() => renderAdminHistory());
+    }
+}
+
+// --- 4. View Specific User Details ---
+function viewSpecificUser(userName) {
+    const historyData = JSON.parse(localStorage.getItem('portal_user_logs') || '{}');
+    const logs = [...historyData[userName]].reverse(); // Copy and reverse for newest first
+
+    let html = `
+    <div class="card" style="border-top:4px solid var(--primary); animation: fadeIn 0.3s ease;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--surface2); padding-bottom:10px">
+            <div>
+                <h4 style="margin:0">Activity History: <span style="color:var(--primary)">${userName}</span></h4>
+                <p style="margin:0; font-size:0.75rem; color:var(--text3)">Total interactions: ${logs.length}</p>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('user-detail-view').innerHTML='' ">✖ Close</button>
+        </div>
+        <div style="max-height:400px; overflow-y:auto">
+            <table style="width:100%">
+                <thead>
+                    <tr style="text-align:left; font-size:0.8rem; color:var(--text3)">
+                        <th style="padding:8px">Date & Time (PKT)</th>
+                        <th style="padding:8px">Activity</th>
+                        <th style="padding:8px">Stay Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${logs.map(l => `
+                        <tr style="border-bottom:1px solid var(--surface2)">
+                            <td style="padding:10px; font-size:0.85rem">${l.time}</td>
+                            <td style="padding:10px"><span class="badge ${l.task.includes('Exam')?'badge-gold':'badge-blue'}">${l.task}</span></td>
+                            <td style="padding:10px; font-size:0.85rem">${l.duration}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    </div>`;
+
+    const detailContainer = document.getElementById('user-detail-view');
+    detailContainer.innerHTML = html;
+    detailContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function clearAllHistory() {
+    if(confirm("Are you sure? This will delete all student records and the visitor count will reset to zero.")) {
+        localStorage.removeItem('portal_user_logs');
+        renderAdminTab('history');
+    }
+}
+// ==================== VIEW ====================
+function renderViewSections() {
+  const sections = getSections();
+  const grid = document.getElementById('view-section-grid');
+  grid.innerHTML = '';
+  sections.forEach(sec => {
+    const card = document.createElement('div');
+    card.className = 'section-card';
+    card.innerHTML = `<div class="s-icon">${sec.icon}</div><div class="s-name">${sec.name}</div>`;
+    card.onclick = () => viewSection(sec.id);
+    grid.appendChild(card);
+  });
+  document.getElementById('view-content').innerHTML = '';
+}
+
+function viewSection(secId) {
+  const mcqs = getMCQs().filter(m => m.section === secId);
+  const sec = getSections().find(s => s.id === secId);
+  const container = document.getElementById('view-content');
+  if (!mcqs.length) { container.innerHTML = `<div class="card" style="text-align:center;color:var(--text2)">No MCQs in this section yet.</div>`; return; }
+  container.innerHTML = `<h3 style="margin-bottom:16px">${sec?.icon||''} ${sec?.name||secId} — ${mcqs.length} MCQs</h3>` +
+    mcqs.map((q,i) => `<div class="mcq-card">
+      <div class="q-num">Q${i+1}</div>
+      <div class="q-text">${q.question}</div>
+      ${['A','B','C','D'].map(opt => `
+        <div class="option-row ${opt===q.correct?'correct':''}">
+          <div class="option-dot ${opt===q.correct?'':''}"></div>
+          <div class="option-label"><strong>${opt}.</strong> ${q['option'+opt]}</div>
+        </div>`).join('')}
+      <div style="margin-top:10px"><span class="badge badge-green">✓ Answer: ${q.correct}</span></div>
+    </div>`).join('');
+  container.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ==================== ESSAYS ====================
+function renderEssays(type) {
+  document.querySelectorAll('.tabs .tab').forEach((t,i) => t.classList.toggle('active', (i===0&&type==='Argumentative')||(i===1&&type==='Narrative')));
+  const essays = getEssays().filter(e => e.type === type);
+  const el = document.getElementById('essay-list');
+  if (!essays.length) { el.innerHTML = `<div class="card" style="text-align:center;color:var(--text2)">No ${type} essays yet.</div>`; return; }
+  el.innerHTML = essays.map(e => `<div class="essay-card">
+    <span class="essay-type-badge ${e.type==='Argumentative'?'badge-blue':'badge-gold'}">${e.type}</span>
+    <h4>${e.title}</h4>
+    <p>${e.content}</p>
+  </div>`).join('');
+}
+function filterEssays(type) { renderEssays(type); }
+
+// ==================== SUGGEST ====================
+let extraSuggestions = [];
+
+// --- Toolbar Helper (User Suggestion ke liye) ---
+function getSugToolbar(targetId) {
+  return `<div style="display:flex;gap:4px;margin-bottom:4px;flex-wrap:wrap;background:var(--surface2);padding:4px;border-radius:4px;">
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','<b>','</b>')" title="Bold"><b>B</b></button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','<i>','</i>')" title="Italic"><i>I</i></button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','<sup>','</sup>')" title="Superscript">x²</button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','<sub>','</sub>')" title="Subscript">x₂</button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','&alpha;')" title="Alpha">&alpha;</button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','&beta;')" title="Beta">&beta;</button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','&theta;')" title="Theta">&theta;</button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','&pi;')" title="Pi">&pi;</button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','&deg;')" title="Degree">&deg;</button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','&le;')" title="Less than or Equal">&le;</button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','&ge;')" title="Greater than or Equal">&ge;</button>
+  </div>`;
+}
+
+function renderSuggestSection() {
+  const sel = document.getElementById('sug-section');
+  if (sel) sel.innerHTML = getSections().map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+  
+  // Pehle MCQ (Main Question) par toolbar lagana
+  const mainQGroup = document.getElementById('sug-question').parentElement;
+  if (!mainQGroup.querySelector('.sug-toolbar-main')) {
+    const tb = document.createElement('div');
+    tb.className = 'sug-toolbar-main';
+    tb.innerHTML = getSugToolbar('sug-question');
+    mainQGroup.insertBefore(tb, document.getElementById('sug-question'));
+  }
+  
+  // Options par toolbar lagana (A, B, C, D)
+  ['a', 'b', 'c', 'd'].forEach(opt => {
+    const optEl = document.getElementById('sug-' + opt);
+    const parent = optEl.parentElement;
+    if (!parent.querySelector('.sug-toolbar-opt')) {
+      const tb = document.createElement('div');
+      tb.className = 'sug-toolbar-opt';
+      tb.innerHTML = getSugToolbar('sug-' + opt);
+      parent.insertBefore(tb, optEl);
+    }
+  });
+
+  extraSuggestions = [];
+  document.getElementById('more-suggestions').innerHTML = '';
+}
+
+function addMoreSuggestion() {
+  const idx = extraSuggestions.length;
+  extraSuggestions.push({});
+  const div = document.createElement('div');
+  div.className = 'card'; 
+  div.style.marginBottom = '16px';
+  div.id = 'extra-sug-' + idx;
+  
+  div.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <strong>MCQ #${idx+2}</strong>
+      <button class="btn btn-danger btn-sm" onclick="removeExtra(${idx})">Remove</button>
+    </div>
+    <div class="form-group">
+      <label>Section</label>
+      <select id="sug2-section-${idx}">${getSections().map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}</select>
+    </div>
+    <div class="form-group">
+      <label>Question</label>
+      ${getSugToolbar('sug2-q-'+idx)}
+      <textarea id="sug2-q-${idx}"></textarea>
+    </div>
+    <div class="form-group"><label>A</label>${getSugToolbar('sug2-a-'+idx)}<input type="text" id="sug2-a-${idx}"></div>
+    <div class="form-group"><label>B</label>${getSugToolbar('sug2-b-'+idx)}<input type="text" id="sug2-b-${idx}"></div>
+    <div class="form-group"><label>C</label>${getSugToolbar('sug2-c-'+idx)}<input type="text" id="sug2-c-${idx}"></div>
+    <div class="form-group"><label>D</label>${getSugToolbar('sug2-d-'+idx)}<input type="text" id="sug2-d-${idx}"></div>`;
+    
+  document.getElementById('more-suggestions').appendChild(div);
+}
+
+function removeExtra(idx) {
+  const el = document.getElementById('extra-sug-'+idx);
+  if (el) el.remove();
+  // Hum array se remove nahi kar rahe taake IDs barqarar rahein
+}
+
+function submitSuggestion() {
+  const q = document.getElementById('sug-question').value.trim();
+  const a = document.getElementById('sug-a').value.trim();
+  const b = document.getElementById('sug-b').value.trim();
+  const c = document.getElementById('sug-c').value.trim();
+  const d = document.getElementById('sug-d').value.trim();
+  const sec = document.getElementById('sug-section').value;
+  
+  if (!q || !a || !b || !c || !d) { 
+    showToast('Fill all fields for MCQ #1', 'error'); 
+    return; 
+  }
+
+  const suggestions = getSuggestions();
+  suggestions.push({ 
+    id: uid(), 
+    section: sec, 
+    question: q, 
+    optionA: a, 
+    optionB: b, 
+    optionC: c, 
+    optionD: d, 
+    correct: '', 
+    status: 'pending', 
+    ts: Date.now() 
+  });
+
+  extraSuggestions.forEach((_, idx) => {
+    const qEl = document.getElementById('sug2-q-'+idx);
+    if (qEl) { // Check if it wasn't removed
+      const q2 = qEl.value.trim();
+      const a2 = document.getElementById('sug2-a-'+idx).value.trim();
+      const b2 = document.getElementById('sug2-b-'+idx).value.trim();
+      const c2 = document.getElementById('sug2-c-'+idx).value.trim();
+      const d2 = document.getElementById('sug2-d-'+idx).value.trim();
+      const sec2 = document.getElementById('sug2-section-'+idx).value;
+      
+      if (q2 && a2 && b2 && c2 && d2) {
+        suggestions.push({ 
+          id: uid(), 
+          section: sec2, 
+          question: q2, 
+          optionA: a2, 
+          optionB: b2, 
+          optionC: c2, 
+          optionD: d2, 
+          correct: '', 
+          status: 'pending', 
+          ts: Date.now() 
+        });
+      }
+    }
+  });
+
+  setData('suggestions', suggestions);
+  showToast('Submitted! Awaiting admin approval ✅', 'success');
+  
+  // Clear fields
+  document.getElementById('sug-question').value = '';
+  ['a','b','c','d'].forEach(x => document.getElementById('sug-'+x).value = '');
+  extraSuggestions = [];
+  document.getElementById('more-suggestions').innerHTML = '';
+}
+
+// ==================== ADMIN ====================
+let isAdmin = false;
+let currentAdminTab = 'pending';
+
+// --- Naya Tool: Formatting Toolbar Helpers ---
+function insertTag(fieldId, tagOpen, tagClose = '') {
+  const el = document.getElementById(fieldId);
+  const start = el.selectionStart;
+  const end = el.selectionEnd;
+  const text = el.value;
+  const selected = text.substring(start, end);
+  el.value = text.substring(0, start) + tagOpen + selected + tagClose + text.substring(end);
+  el.focus();
+  el.setSelectionRange(start + tagOpen.length, start + tagOpen.length + selected.length);
+}
+
+function getToolbar(targetId) {
+  return `<div style="display:flex;gap:4px;margin-bottom:4px;flex-wrap:wrap;background:var(--surface2);padding:4px;border-radius:4px;">
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','<b>','</b>')" title="Bold"><b>B</b></button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','<i>','</i>')" title="Italic"><i>I</i></button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','<sup>','</sup>')" title="Superscript">x²</button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','<sub>','</sub>')" title="Subscript">x₂</button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','&alpha;')" title="Alpha">&alpha;</button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','&beta;')" title="Beta">&beta;</button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','&theta;')" title="Theta">&theta;</button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','&pi;')" title="Pi">&pi;</button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','&deg;')" title="Degree">&deg;</button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','&le;')" title="Less than or Equal">&le;</button>
+    <button type="button" class="btn btn-sm btn-outline" onclick="insertTag('${targetId}','&ge;')" title="Greater than or Equal">&ge;</button>
+  </div>`;
+}
+
+function showAdminLogin() {
+  if (isAdmin) { showPage('admin'); return; }
+  document.getElementById('admin-modal').classList.add('open');
+}
+function closeAdminModal() { document.getElementById('admin-modal').classList.remove('open'); }
+function doAdminLogin() {
+  const u = document.getElementById('admin-user').value;
+  const p = document.getElementById('admin-pass').value;
+  if (u === ADMIN_USER && p === ADMIN_PASS) {
+    isAdmin = true;
+    closeAdminModal();
+    showPage('admin');
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+function adminTab(tab) {
+  currentAdminTab = tab;
+  document.querySelectorAll('#admin-tabs .tab').forEach((t,i) => {
+    const tabs = ['pending','approved','rejected','add','essays','sections'];
+    t.classList.toggle('active', tabs[i] === tab);
+  });
+  renderAdminTab(tab);
+}
+
+function renderAdminTab(tab) {
+  const el = document.getElementById('admin-tab-content');
+  if (tab === 'pending') el.innerHTML = renderSuggestionsTable('pending');
+  else if (tab === 'approved') el.innerHTML = renderMCQsTable();
+  else if (tab === 'rejected') el.innerHTML = renderSuggestionsTable('rejected');
+  else if (tab === 'add') el.innerHTML = renderAdminAddForm();
+  else if (tab === 'essays') el.innerHTML = renderAdminEssays();
+  else if (tab === 'sections') el.innerHTML = renderAdminSections();
+  else if (tab === 'history') el.innerHTML = renderAdminHistory();
+}
+
+function renderSuggestionsTable(status) {
+  const sugs = getSuggestions().filter(s => s.status === status);
+  if (!sugs.length) return `<div class="card" style="text-align:center;color:var(--text2)">No ${status} suggestions.</div>`;
+  return `<div class="card"><table>
+    <tr><th>Section</th><th>Question</th><th>Options</th><th>Actions</th></tr>
+    ${sugs.map(s => `<tr>
+      <td><span class="badge badge-blue">${getSections().find(x=>x.id===s.section)?.name||s.section}</span></td>
+      <td style="max-width:200px">${s.question}</td>
+      <td style="font-size:.78rem;color:var(--text2)">A: ${s.optionA}<br>B: ${s.optionB}<br>C: ${s.optionC}<br>D: ${s.optionD}</td>
+      <td>
+        ${status==='pending'?`<button class="btn btn-success btn-sm" onclick="approveSuggestion('${s.id}')">Approve</button> `:``}
+        <button class="btn btn-warning btn-sm" onclick="openEditSuggestion('${s.id}')">Edit</button>
+        ${status==='pending'?`<button class="btn btn-danger btn-sm" onclick="rejectSuggestion('${s.id}')">Reject</button>`:`<button class="btn btn-danger btn-sm" onclick="deleteSuggestion('${s.id}')">Delete</button>`}
+      </td>
+    </tr>`).join('')}
+  </table></div>`;
+}
+
+function renderMCQsTable() {
+  const mcqs = getMCQs();
+  if (!mcqs.length) return `<div class="card" style="text-align:center;color:var(--text2)">No approved MCQs yet.</div>`;
+  return `<div class="card"><table>
+    <tr><th>Section</th><th>Question</th><th>Correct</th><th>Actions</th></tr>
+    ${mcqs.map(m => `<tr>
+      <td><span class="badge badge-blue">${getSections().find(x=>x.id===m.section)?.name||m.section}</span></td>
+      <td style="max-width:240px">${m.question}</td>
+      <td><span class="badge badge-green">${m.correct}</span></td>
+      <td><button class="btn btn-warning btn-sm" onclick="openEditMCQ('${m.id}')">Edit</button> <button class="btn btn-danger btn-sm" onclick="deleteMCQ('${m.id}')">Delete</button></td>
+    </tr>`).join('')}
+  </table></div>`;
+}
+
+function renderAdminAddForm() {
+  return `<div class="card">
+    <h3 style="margin-bottom:16px">Add New MCQ</h3>
+    <div class="form-group"><label>Section</label><select id="add-section">${getSections().map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}</select></div>
+    <div class="form-group">
+      <label>Question Statement</label>
+      ${getToolbar('add-question')}
+      <textarea id="add-question" placeholder="Enter question..."></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Option A</label>${getToolbar('add-a')}<input type="text" id="add-a"></div>
+      <div class="form-group"><label>Option B</label>${getToolbar('add-b')}<input type="text" id="add-b"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Option C</label>${getToolbar('add-c')}<input type="text" id="add-c"></div>
+      <div class="form-group"><label>Option D</label>${getToolbar('add-d')}<input type="text" id="add-d"></div>
+    </div>
+    <div class="form-group"><label>Correct Answer</label>
+      <select id="add-correct"><option>A</option><option>B</option><option>C</option><option>D</option></select>
+    </div>
+    <button class="btn btn-success" onclick="adminAddMCQ()">✅ Add MCQ</button>
+    <div id="add-more-container" style="margin-top:20px"></div>
+    <button class="btn btn-outline btn-sm" style="margin-top:8px" onclick="adminAddMore()">+ Add Another</button>
+  </div>`;
+}
+
+let adminExtras = [];
+
+function adminAddMore() {
+  const idx = adminExtras.length;
+  adminExtras.push({});
+  const div = document.createElement('div');
+  div.className = 'card'; div.style.marginBottom = '12px';
+  div.id = 'adm-extra-' + idx;
+  div.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><strong>MCQ #${idx+2}</strong><button class="btn btn-danger btn-sm" onclick="document.getElementById('adm-extra-${idx}').remove()">Remove</button></div>
+    <div class="form-group"><label>Section</label><select id="adme-sec-${idx}">${getSections().map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}</select></div>
+    <div class="form-group"><label>Question</label>${getToolbar('adme-q-'+idx)}<textarea id="adme-q-${idx}"></textarea></div>
+    <div class="form-row"><div class="form-group"><label>A</label>${getToolbar('adme-a-'+idx)}<input id="adme-a-${idx}" type="text"></div><div class="form-group"><label>B</label>${getToolbar('adme-b-'+idx)}<input id="adme-b-${idx}" type="text"></div></div>
+    <div class="form-row"><div class="form-group"><label>C</label>${getToolbar('adme-c-'+idx)}<input id="adme-c-${idx}" type="text"></div><div class="form-group"><label>D</label>${getToolbar('adme-d-${idx}')}<input id="adme-d-${idx}" type="text"></div></div>
+    <div class="form-group"><label>Correct</label><select id="adme-cor-${idx}"><option>A</option><option>B</option><option>C</option><option>D</option></select></div>`;
+  document.getElementById('add-more-container').appendChild(div);
+}
+
+function adminAddMCQ() {
+  const q = document.getElementById('add-question').value.trim();
+  const a = document.getElementById('add-a').value.trim();
+  const b = document.getElementById('add-b').value.trim();
+  const c = document.getElementById('add-c').value.trim();
+  const d = document.getElementById('add-d').value.trim();
+  const sec = document.getElementById('add-section').value;
+  const cor = document.getElementById('add-correct').value;
+  if (!q||!a||!b||!c||!d) { showToast('Fill all fields', 'error'); return; }
+  const mcqs = getMCQs();
+  mcqs.push({ id: uid(), section: sec, question: q, optionA: a, optionB: b, optionC: c, optionD: d, correct: cor });
+  adminExtras.forEach((_,idx) => {
+    const q2 = document.getElementById('adme-q-'+idx)?.value.trim();
+    const a2 = document.getElementById('adme-a-'+idx)?.value.trim();
+    const b2 = document.getElementById('adme-b-'+idx)?.value.trim();
+    const c2 = document.getElementById('adme-c-'+idx)?.value.trim();
+    const d2 = document.getElementById('adme-d-'+idx)?.value.trim();
+    const s2 = document.getElementById('adme-sec-'+idx)?.value;
+    const cor2 = document.getElementById('adme-cor-'+idx)?.value;
+    if (q2&&a2&&b2&&c2&&d2) mcqs.push({ id: uid(), section: s2, question: q2, optionA: a2, optionB: b2, optionC: c2, optionD: d2, correct: cor2 });
+  });
+  setData('mcqs', mcqs);
+  adminExtras = [];
+  showToast('MCQs added successfully!', 'success');
+  renderAdminTab('add');
+}
+
+function renderAdminEssays() {
+  const essays = getEssays();
+  return `<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3>Manage Essays</h3>
+      <button class="btn btn-primary btn-sm" onclick="openEssayModal()">+ Add Essay</button>
+    </div>
+    ${essays.length ? `<table>
+      <tr><th>Type</th><th>Title</th><th>Actions</th></tr>
+      ${essays.map(e=>`<tr>
+        <td><span class="badge ${e.type==='Argumentative'?'badge-blue':'badge-gold'}">${e.type}</span></td>
+        <td>${e.title}</td>
+        <td><button class="btn btn-warning btn-sm" onclick="openEssayModal('${e.id}')">Edit</button> <button class="btn btn-danger btn-sm" onclick="deleteEssay('${e.id}')">Delete</button></td>
+      </tr>`).join('')}
+    </table>` : '<p style="color:var(--text2)">No essays yet.</p>'}
+  </div>`;
+}
+
+function renderAdminSections() {
+  const sections = getSections();
+  return `<div class="card">
+    <h3 style="margin-bottom:16px">Manage Sections</h3>
+    <div style="margin-bottom:20px">
+      ${sections.map(s=>`<div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--surface2);border-radius:8px;margin-bottom:8px">
+        <span>${s.icon}</span><span style="flex:1">${s.name}</span>
+        <button class="btn btn-danger btn-sm" onclick="deleteSection('${s.id}')">Delete</button>
+      </div>`).join('')}
+    </div>
+    <h3 style="margin-bottom:12px">Add New Section</h3>
+    <div class="form-row">
+      <div class="form-group"><label>Icon (emoji)</label><input type="text" id="new-sec-icon" placeholder="📚" maxlength="2"></div>
+      <div class="form-group"><label>Name</label><input type="text" id="new-sec-name" placeholder="Section Name"></div>
+    </div>
+    <button class="btn btn-primary" onclick="addSection()">Add Section</button>
+  </div>`;
+}
+
+function addSection() {
+  const icon = document.getElementById('new-sec-icon').value.trim() || '📌';
+  const name = document.getElementById('new-sec-name').value.trim();
+  if (!name) { showToast('Enter section name', 'error'); return; }
+  const sections = getSections();
+  const id = name.toLowerCase().replace(/\s+/g, '_');
+  sections.push({ id, name, icon });
+  setData('sections', sections);
+  showToast('Section added!', 'success');
+  renderAdminTab('sections');
+}
+
+function deleteSection(id) {
+  const sections = getSections().filter(s => s.id !== id);
+  setData('sections', sections);
+  renderAdminTab('sections');
+  showToast('Section deleted', 'success');
+}
+
+function approveSuggestion(id) {
+  const sugs = getSuggestions();
+  const sug = sugs.find(s => s.id === id);
+  if (!sug) return;
+  if (!sug.correct) { showToast('Set correct answer before approving — use Edit', 'error'); return; }
+  sug.status = 'approved';
+  setData('suggestions', sugs);
+  const mcqs = getMCQs();
+  mcqs.push({ id: uid(), section: sug.section, question: sug.question, optionA: sug.optionA, optionB: sug.optionB, optionC: sug.optionC, optionD: sug.optionD, correct: sug.correct });
+  setData('mcqs', mcqs);
+  showToast('Approved & added to MCQs!', 'success');
+  renderAdminTab('pending');
+}
+
+function rejectSuggestion(id) {
+  const sugs = getSuggestions();
+  const s = sugs.find(s => s.id === id);
+  if (s) s.status = 'rejected';
+  setData('suggestions', sugs);
+  showToast('Suggestion rejected', 'success');
+  renderAdminTab('pending');
+}
+
+function deleteSuggestion(id) {
+  setData('suggestions', getSuggestions().filter(s => s.id !== id));
+  showToast('Deleted', 'success');
+  renderAdminTab(currentAdminTab);
+}
+
+function deleteMCQ(id) {
+  setData('mcqs', getMCQs().filter(m => m.id !== id));
+  showToast('MCQ deleted', 'success');
+  renderAdminTab('approved');
+}
+
+// Edit MCQ
+function openEditMCQ(id) {
+  const m = getMCQs().find(x => x.id === id);
+  if (!m) return;
+  
+  // Set values
+  document.getElementById('edit-id').value = id;
+  document.getElementById('edit-section').innerHTML = getSections().map(s=>`<option value="${s.id}" ${s.id===m.section?'selected':''}>${s.name}</option>`).join('');
+  document.getElementById('edit-question').value = m.question;
+  document.getElementById('edit-a').value = m.optionA;
+  document.getElementById('edit-b').value = m.optionB;
+  document.getElementById('edit-c').value = m.optionC;
+  document.getElementById('edit-d').value = m.optionD;
+  document.getElementById('edit-correct').value = m.correct;
+
+  // Add Toolbars to Edit Modal
+  const qGroup = document.getElementById('edit-question').parentElement;
+  if (!qGroup.querySelector('.edit-toolbar')) {
+     const tb = document.createElement('div'); tb.className = 'edit-toolbar';
+     tb.innerHTML = getToolbar('edit-question');
+     qGroup.insertBefore(tb, document.getElementById('edit-question'));
+  }
+
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function openEditSuggestion(id) {
+  const s = getSuggestions().find(x => x.id === id);
+  if (!s) return;
+  document.getElementById('edit-id').value = 'sug:' + id;
+  document.getElementById('edit-section').innerHTML = getSections().map(sec=>`<option value="${sec.id}" ${sec.id===s.section?'selected':''}>${sec.name}</option>`).join('');
+  document.getElementById('edit-question').value = s.question;
+  document.getElementById('edit-a').value = s.optionA;
+  document.getElementById('edit-b').value = s.optionB;
+  document.getElementById('edit-c').value = s.optionC;
+  document.getElementById('edit-d').value = s.optionD;
+  document.getElementById('edit-correct').value = s.correct || 'A';
+  
+  // Add Toolbar to Edit Modal (Suggestion)
+  const qGroup = document.getElementById('edit-question').parentElement;
+  if (!qGroup.querySelector('.edit-toolbar')) {
+     const tb = document.createElement('div'); tb.className = 'edit-toolbar';
+     tb.innerHTML = getToolbar('edit-question');
+     qGroup.insertBefore(tb, document.getElementById('edit-question'));
+  }
+
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function closeEditModal() { document.getElementById('edit-modal').classList.remove('open'); }
+
+function saveEdit() {
+  const rawId = document.getElementById('edit-id').value;
+  const sec = document.getElementById('edit-section').value;
+  const q = document.getElementById('edit-question').value.trim();
+  const a = document.getElementById('edit-a').value.trim();
+  const b = document.getElementById('edit-b').value.trim();
+  const c = document.getElementById('edit-c').value.trim();
+  const d = document.getElementById('edit-d').value.trim();
+  const cor = document.getElementById('edit-correct').value;
+  if (!q||!a||!b||!c||!d) { showToast('Fill all fields', 'error'); return; }
+
+  if (rawId.startsWith('sug:')) {
+    const id = rawId.slice(4);
+    const sugs = getSuggestions();
+    const s = sugs.find(x => x.id === id);
+    if (s) { s.section=sec; s.question=q; s.optionA=a; s.optionB=b; s.optionC=c; s.optionD=d; s.correct=cor; s.status='approved'; }
+    setData('suggestions', sugs);
+    const mcqs = getMCQs();
+    mcqs.push({ id: uid(), section: sec, question: q, optionA: a, optionB: b, optionC: c, optionD: d, correct: cor });
+    setData('mcqs', mcqs);
+    showToast('Edited & Approved!', 'success');
+  } else {
+    const mcqs = getMCQs();
+    const m = mcqs.find(x => x.id === rawId);
+    if (m) { m.section=sec; m.question=q; m.optionA=a; m.optionB=b; m.optionC=c; m.optionD=d; m.correct=cor; }
+    setData('mcqs', mcqs);
+    showToast('MCQ updated!', 'success');
+  }
+  closeEditModal();
+  renderAdminTab(currentAdminTab);
+}
+
+// Essays admin
+function openEssayModal(id) {
+  document.getElementById('essay-modal-title').textContent = id ? 'Edit Essay' : 'Add Essay';
+  document.getElementById('essay-edit-id').value = id || '';
+  if (id) {
+    const e = getEssays().find(x => x.id === id);
+    if (e) { document.getElementById('essay-type').value=e.type; document.getElementById('essay-title').value=e.title; document.getElementById('essay-content').value=e.content; }
+  } else { document.getElementById('essay-type').value='Argumentative'; document.getElementById('essay-title').value=''; document.getElementById('essay-content').value=''; }
+  document.getElementById('essay-modal').classList.add('open');
+}
+function closeEssayModal() { document.getElementById('essay-modal').classList.remove('open'); }
+function saveEssay() {
+  const id = document.getElementById('essay-edit-id').value;
+  const type = document.getElementById('essay-type').value;
+  const title = document.getElementById('essay-title').value.trim();
+  const content = document.getElementById('essay-content').value.trim();
+  if (!title) { showToast('Fill title', 'error'); return; }
+  const essays = getEssays();
+  if (id) { const e = essays.find(x=>x.id===id); if(e){e.type=type;e.title=title;e.content=content;} }
+  else essays.push({ id: uid(), type, title, content });
+  setData('essays', essays);
+  closeEssayModal();
+  showToast('Essay saved!', 'success');
+  renderAdminTab('essays');
+}
+function deleteEssay(id) {
+  setData('essays', getEssays().filter(e=>e.id!==id));
+  showToast('Deleted', 'success');
+  renderAdminTab('essays');
+}
+
+// ==================== TOAST ====================
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ==================== INIT ====================
+renderExamSetup();
+</script>
+</body>
+</html>
