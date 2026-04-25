@@ -4,13 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <title>USAT Prep Platform</title>
+<!-- PDF Export ke liye -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- Charts ke liye -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
         }
         
         :root {
@@ -21,12 +25,10 @@
             --text2: #334155;
             --text3: #5b6e8c;
             --primary: #3b82f6;
-            --primary-dark: #2563eb;
             --success: #10b981;
             --danger: #ef4444;
             --warning: #f59e0b;
             --gold: #fbbf24;
-            --accent: #8b5cf6;
             --border: #e2e8f0;
         }
         
@@ -35,219 +37,365 @@
             padding-bottom: 80px;
         }
         
-        /* ========== RESPONSIVE NAVIGATION ========== */
+        /* ===== RESPONSIVE NAVIGATION - MAJOR CHANGE ===== */
         nav {
             background: var(--bg);
-            backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border);
-            padding: 10px 16px;
+            padding: 8px 12px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
+            gap: 6px;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        nav::-webkit-scrollbar {
+            display: none;
         }
         
         .nav-logo {
             font-weight: 800;
-            font-size: 1.2rem;
+            font-size: 1rem;
             background: linear-gradient(135deg, #3b82f6, #8b5cf6);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            white-space: nowrap;
+            flex-shrink: 0;
         }
         
         .nav-btn {
             background: transparent;
             border: none;
-            padding: 8px 14px;
-            border-radius: 40px;
+            padding: 6px 12px;
+            border-radius: 30px;
             font-weight: 500;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             cursor: pointer;
-            transition: all 0.2s;
             color: var(--text2);
-            white-space: nowrap;
+            flex-shrink: 0;
+            transition: all 0.2s;
         }
         
-        .nav-btn.active, .nav-btn:hover { background: var(--surface2); color: var(--primary); }
-        .admin-btn { background: #1e293b; color: white; }
-        .nav-spacer { flex: 1; }
+        .nav-btn.active, .nav-btn:hover { 
+            background: var(--surface2); 
+            color: var(--primary); 
+        }
         
-        /* Mobile nav - horizontal scroll */
-        @media (max-width: 768px) {
+        .admin-btn { 
+            background: #1e293b; 
+            color: white; 
+        }
+        
+        .nav-spacer { 
+            display: none; 
+        }
+        
+        /* Desktop navigation */
+        @media (min-width: 768px) {
             nav {
-                padding: 10px 12px;
-                gap: 6px;
-                overflow-x: auto;
-                flex-wrap: nowrap;
-                justify-content: flex-start;
-                -webkit-overflow-scrolling: touch;
-                scrollbar-width: none;
+                overflow-x: visible;
+                padding: 12px 24px;
+                gap: 12px;
+                flex-wrap: wrap;
             }
-            nav::-webkit-scrollbar { display: none; }
-            .nav-btn { padding: 6px 12px; font-size: 0.75rem; flex-shrink: 0; }
-            .nav-logo { font-size: 1rem; flex-shrink: 0; }
-            .admin-btn { margin-left: 0; flex-shrink: 0; }
+            .nav-logo { font-size: 1.3rem; }
+            .nav-btn { 
+                padding: 8px 18px; 
+                font-size: 0.85rem; 
+            }
+            .nav-spacer { 
+                display: block; 
+                flex: 1; 
+            }
+            .admin-btn { 
+                margin-left: auto; 
+            }
         }
         
-        /* ========== PAGES ========== */
+        /* ===== PAGES ===== */
         .page {
             display: none;
-            padding: 20px 16px 40px;
+            padding: 16px;
             max-width: 1200px;
             margin: 0 auto;
         }
-        .page.active { display: block; animation: fade 0.25s ease; }
-        @keyframes fade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* ========== HERO ========== */
+        .page.active { 
+            display: block; 
+            animation: fade 0.25s ease; 
+        }
+        
+        @keyframes fade {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* ===== DESKTOP PADDING ===== */
+        @media (min-width: 768px) {
+            .page { padding: 24px; }
+        }
+        
+        /* ===== HERO SECTION ===== */
         .hero {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            background: linear-gradient(135deg, #0f172a, #1e293b);
             color: white;
-            border-radius: 1.5rem;
-            padding: 1.8rem 1.5rem;
-            margin-bottom: 28px;
+            border-radius: 1rem;
+            padding: 1.5rem 1rem;
+            margin-bottom: 20px;
             text-align: center;
         }
-        .hero h1 { font-size: 1.6rem; margin-bottom: 8px; }
-        .hero p { font-size: 0.9rem; opacity: 0.85; }
-        @media (max-width: 480px) {
-            .hero { padding: 1.2rem 1rem; border-radius: 1rem; }
-            .hero h1 { font-size: 1.3rem; }
+        
+        .hero h1 { 
+            font-size: 1.3rem; 
+            margin-bottom: 6px; 
         }
         
-        /* ========== HOME CARDS ========== */
+        .hero p { 
+            font-size: 0.8rem; 
+            opacity: 0.85; 
+        }
+        
+        @media (min-width: 768px) {
+            .hero { 
+                border-radius: 1.5rem; 
+                padding: 2rem; 
+                margin-bottom: 32px; 
+            }
+            .hero h1 { font-size: 1.8rem; }
+            .hero p { font-size: 1rem; }
+        }
+        
+        /* ===== HOME CARDS - 2 COLUMNS ON MOBILE ===== */
         .home-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 16px;
-        }
-        .home-card {
-            background: var(--bg);
-            border-radius: 1.2rem;
-            padding: 1.2rem;
-            border: 1px solid var(--border);
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-        }
-        .home-card:hover { transform: translateY(-3px); border-color: var(--primary); }
-        .hc-icon { font-size: 2rem; margin-bottom: 8px; }
-        .home-card h3 { font-size: 1rem; margin-bottom: 6px; }
-        .home-card p { font-size: 0.75rem; color: var(--text3); }
-        @media (max-width: 480px) {
-            .home-cards { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-            .home-card { padding: 1rem; }
-        }
-        
-        /* ========== SECTION GRID ========== */
-        .section-grid {
-            display: flex;
-            flex-wrap: wrap;
+            grid-template-columns: repeat(2, 1fr);
             gap: 12px;
-            margin: 20px 0;
-        }
-        .section-card {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 1rem;
-            padding: 10px 14px;
-            width: calc(33.33% - 8px);
-            min-width: 140px;
-            flex: 1;
-            text-align: center;
-            cursor: pointer;
-        }
-        .section-card.selected { border-color: var(--primary); background: #eff6ff; }
-        .section-card .s-icon { font-size: 1.5rem; }
-        .section-card .s-name { font-size: 0.8rem; font-weight: 500; }
-        @media (max-width: 640px) {
-            .section-card { width: calc(50% - 6px); min-width: 120px; }
-        }
-        @media (max-width: 480px) {
-            .section-card { width: 100%; }
         }
         
-        /* ========== MCQ CARD ========== */
-        .mcq-card {
+        .home-card {
             background: var(--bg);
             border-radius: 1rem;
             padding: 1rem;
-            margin-bottom: 16px;
-            border-left: 4px solid var(--primary);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
         }
-        .q-num { font-size: 0.7rem; color: var(--text3); margin-bottom: 8px; }
-        .q-text { font-size: 0.95rem; font-weight: 600; margin-bottom: 14px; line-height: 1.4; }
+        
+        .home-card:active {
+            transform: scale(0.97);
+            background: var(--surface);
+        }
+        
+        .hc-icon { 
+            font-size: 1.8rem; 
+            margin-bottom: 6px; 
+        }
+        
+        .home-card h3 { 
+            font-size: 0.85rem; 
+            margin-bottom: 4px; 
+        }
+        
+        .home-card p { 
+            font-size: 0.7rem; 
+            color: var(--text3);
+            display: none;
+        }
+        
+        @media (min-width: 480px) {
+            .home-cards { gap: 16px; }
+            .home-card { padding: 1.2rem; }
+            .hc-icon { font-size: 2rem; }
+            .home-card h3 { font-size: 0.95rem; }
+            .home-card p { display: block; }
+        }
+        
+        @media (min-width: 768px) {
+            .home-cards { 
+                grid-template-columns: repeat(4, 1fr); 
+                gap: 20px; 
+            }
+            .home-card:hover { transform: translateY(-4px); }
+            .home-card:active { transform: translateY(-2px); }
+        }
+        
+        /* ===== SECTION GRID - STACK ON MOBILE ===== */
+        .section-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 16px 0;
+        }
+        
+        .section-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 0.8rem;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        .section-card .s-icon { 
+            font-size: 1.3rem; 
+        }
+        
+        .section-card .s-name { 
+            font-size: 0.85rem; 
+            font-weight: 500;
+            flex: 1;
+            margin-left: 12px;
+            text-align: left;
+        }
+        
+        .section-card input {
+            width: 70px;
+            padding: 6px;
+            text-align: center;
+        }
+        
+        @media (min-width: 640px) {
+            .section-grid {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+            .section-card {
+                width: calc(33.33% - 8px);
+                flex-direction: column;
+                text-align: center;
+                padding: 14px;
+            }
+            .section-card .s-name {
+                margin-left: 0;
+                margin-top: 6px;
+                text-align: center;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .section-card {
+                width: calc(25% - 9px);
+            }
+        }
+        
+        /* ===== MCQ CARD ===== */
+        .mcq-card {
+            background: var(--bg);
+            border-radius: 0.8rem;
+            padding: 12px;
+            margin-bottom: 12px;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .q-num { 
+            font-size: 0.65rem; 
+            color: var(--text3); 
+            margin-bottom: 6px; 
+        }
+        
+        .q-text { 
+            font-size: 0.85rem; 
+            font-weight: 600; 
+            margin-bottom: 10px; 
+            line-height: 1.4;
+        }
+        
         .option-row {
             display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 8px 10px;
-            margin: 4px 0;
-            border-radius: 12px;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 6px 8px;
+            margin: 3px 0;
+            border-radius: 10px;
             cursor: pointer;
         }
-        .option-dot { width: 18px; height: 18px; border-radius: 18px; border: 2px solid var(--text3); flex-shrink: 0; }
-        .option-label { font-size: 0.85rem; word-break: break-word; flex: 1; }
-        .option-row.selected { background: #eef2ff; }
-        .option-row.correct { background: #d1fae5; }
-        .option-row.wrong { background: #fee2e2; }
         
-        /* ========== EXAM PROGRESS ========== */
-        .exam-progress {
-            background: var(--surface2);
-            border-radius: 60px;
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
+        .option-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 16px;
+            border: 2px solid var(--text3);
+            flex-shrink: 0;
+            margin-top: 2px;
         }
-        .ep-label { font-size: 0.65rem; color: var(--text3); }
-        .ep-val { font-weight: 700; font-size: 1.2rem; }
         
-        /* ========== BUTTONS ========== */
+        .option-label { 
+            font-size: 0.8rem; 
+            line-height: 1.3;
+            word-break: break-word;
+            flex: 1;
+        }
+        
+        @media (min-width: 768px) {
+            .mcq-card { 
+                padding: 1.2rem; 
+                margin-bottom: 16px;
+                border-left-width: 4px;
+            }
+            .q-text { font-size: 0.95rem; }
+            .option-label { font-size: 0.85rem; }
+        }
+        
+        /* ===== BUTTONS - FULL WIDTH ON MOBILE ===== */
         .btn {
-            padding: 12px 18px;
+            padding: 10px 16px;
             border-radius: 40px;
             border: none;
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             cursor: pointer;
             background: var(--surface2);
             color: var(--text1);
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            justify-content: center;
+            display: inline-block;
+            text-align: center;
         }
+        
         .btn-primary { background: var(--primary); color: white; }
         .btn-success { background: var(--success); color: white; }
         .btn-warning { background: var(--warning); color: #1e293b; }
         .btn-danger { background: var(--danger); color: white; }
         .btn-outline { background: transparent; border: 1px solid var(--border); }
-        .btn-sm { padding: 6px 12px; font-size: 0.75rem; }
+        .btn-sm { padding: 5px 10px; font-size: 0.7rem; }
         
-        @media (max-width: 480px) {
-            .btn { padding: 10px 14px; width: 100%; }
-            .btn-sm { width: auto; }
+        /* Mobile: full width buttons */
+        @media (max-width: 640px) {
+            .btn {
+                width: 100%;
+                padding: 12px;
+                font-size: 0.85rem;
+            }
+            .btn-sm {
+                width: auto;
+                padding: 5px 12px;
+            }
+            .modal-footer .btn {
+                width: auto;
+                flex: 1;
+            }
         }
         
-        /* ========== MODAL ========== */
+        @media (min-width: 641px) {
+            .btn { padding: 10px 20px; }
+        }
+        
+        /* ===== MODAL - FULLSCREEN ON MOBILE ===== */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px);
+            background: rgba(0,0,0,0.7);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -255,31 +403,57 @@
             visibility: hidden;
             opacity: 0;
             transition: 0.2s;
-            padding: 16px;
-        }
-        .modal-overlay.open { visibility: visible; opacity: 1; }
-        .modal {
-            background: var(--bg);
-            border-radius: 1.5rem;
-            max-width: 550px;
-            width: 100%;
-            padding: 1.5rem;
-            max-height: 85vh;
-            overflow-y: auto;
-        }
-        .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        @media (max-width: 480px) {
-            .modal { padding: 1.2rem; }
-            .modal-footer button { flex: 1; }
+            padding: 10px;
         }
         
-        /* ========== WELCOME SCREEN ========== */
+        .modal-overlay.open { 
+            visibility: visible; 
+            opacity: 1; 
+        }
+        
+        .modal {
+            background: var(--bg);
+            border-radius: 1rem;
+            width: 95%;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+        
+        @media (min-width: 640px) {
+            .modal {
+                border-radius: 1.5rem;
+                max-width: 550px;
+                width: 90%;
+                padding: 1.5rem;
+            }
+        }
+        
+        /* ===== EXAM PROGRESS ===== */
+        .exam-progress {
+            background: var(--surface2);
+            border-radius: 50px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        
+        .ep-label { font-size: 0.6rem; color: var(--text3); }
+        .ep-val { font-weight: 700; font-size: 1rem; }
+        
+        @media (min-width: 640px) {
+            .exam-progress { 
+                padding: 12px 20px; 
+                flex-wrap: nowrap;
+            }
+            .ep-val { font-size: 1.2rem; }
+        }
+        
+        /* ===== WELCOME SCREEN ===== */
         #welcome-screen {
             position: fixed;
             top: 0;
@@ -293,129 +467,503 @@
             z-index: 200;
             padding: 20px;
         }
+        
         .welcome-card {
             background: white;
-            border-radius: 1.5rem;
-            padding: 2rem 1.5rem;
+            border-radius: 1.2rem;
+            padding: 1.5rem;
             text-align: center;
-            max-width: 400px;
             width: 100%;
-            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.15);
+            max-width: 350px;
         }
         
-        /* ========== FORMS ========== */
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-weight: 500; margin-bottom: 6px; font-size: 0.8rem; }
+        @media (min-width: 480px) {
+            .welcome-card {
+                border-radius: 1.5rem;
+                padding: 2rem;
+                max-width: 400px;
+            }
+        }
+        
+        /* ===== FORMS ===== */
+        .form-group { margin-bottom: 14px; }
+        .form-group label { 
+            display: block; 
+            font-weight: 500; 
+            margin-bottom: 5px; 
+            font-size: 0.75rem; 
+        }
+        
         input, select, textarea {
             width: 100%;
-            padding: 12px;
-            border-radius: 12px;
+            padding: 10px;
+            border-radius: 10px;
             border: 1px solid var(--border);
             background: var(--bg);
-            font-size: 0.9rem;
-        }
-        .form-row { display: flex; gap: 12px; flex-wrap: wrap; }
-        .form-row .form-group { flex: 1; min-width: 120px; }
-        
-        /* ========== TABLES ========== */
-        .table-container { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid var(--border); }
-        th { font-size: 0.8rem; color: var(--text3); }
-        td { font-size: 0.85rem; word-break: break-word; }
-        @media (max-width: 640px) {
-            th, td { padding: 8px 6px; font-size: 0.75rem; }
+            font-size: 0.85rem;
         }
         
-        /* ========== TABS ========== */
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        @media (min-width: 640px) {
+            .form-row {
+                flex-direction: row;
+                gap: 12px;
+            }
+            .form-row .form-group { flex: 1; }
+        }
+        
+        /* ===== TABLES - HORIZONTAL SCROLL ===== */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;
+        }
+        
+        th, td {
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.75rem;
+        }
+        
+        @media (min-width: 768px) {
+            th, td { 
+                padding: 12px; 
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* ===== TABS ===== */
         .tabs {
             display: flex;
             gap: 6px;
             flex-wrap: wrap;
-            border-bottom: 1px solid var(--border);
-            margin: 16px 0 20px;
+            margin: 12px 0 16px;
         }
+        
         .tab {
-            padding: 8px 16px;
+            padding: 6px 14px;
             cursor: pointer;
             border-radius: 30px;
-            font-size: 0.85rem;
+            font-size: 0.75rem;
+            background: var(--surface2);
         }
-        .tab.active { background: var(--surface2); font-weight: 600; }
         
-        /* ========== SCORE CIRCLE ========== */
+        .tab.active { 
+            background: var(--primary); 
+            color: white;
+        }
+        
+        @media (min-width: 640px) {
+            .tab { 
+                padding: 8px 20px; 
+                font-size: 0.85rem;
+            }
+        }
+        
+        /* ===== OTHER UTILITIES ===== */
         .score-circle {
-            width: 120px;
-            height: 120px;
+            width: 100px;
+            height: 100px;
             background: var(--surface);
-            border-radius: 120px;
+            border-radius: 100px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px;
+            margin: 0 auto 16px;
             border: 3px solid var(--gold);
         }
-        .sc-num { font-size: 2rem; font-weight: 800; }
         
-        /* ========== BADGES ========== */
+        .sc-num { font-size: 1.6rem; font-weight: 800; }
+        
+        @media (min-width: 640px) {
+            .score-circle {
+                width: 130px;
+                height: 130px;
+            }
+            .sc-num { font-size: 2rem; }
+        }
+        
         .badge {
             display: inline-block;
-            padding: 4px 10px;
-            border-radius: 40px;
-            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 30px;
+            font-size: 0.65rem;
             font-weight: 600;
         }
-        .badge-blue { background: #dbeafe; color: #1e40af; }
-        .badge-green { background: #dcfce7; color: #166534; }
-        .badge-gold { background: #fef3c7; color: #92400e; }
         
-        /* ========== TOAST ========== */
         .toast {
             position: fixed;
             bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 10px;
+            right: 10px;
             background: #1e293b;
             color: white;
-            padding: 10px 20px;
-            border-radius: 60px;
-            font-size: 0.8rem;
+            padding: 10px;
+            border-radius: 40px;
+            font-size: 0.75rem;
             opacity: 0;
             transition: 0.2s;
             z-index: 2000;
-            pointer-events: none;
             text-align: center;
-            max-width: 90%;
-            white-space: normal;
         }
+        
+        @media (min-width: 640px) {
+            .toast {
+                left: 50%;
+                right: auto;
+                transform: translateX(-50%);
+                padding: 12px 24px;
+                white-space: nowrap;
+            }
+        }
+        
         .toast.show { opacity: 1; }
         
-        /* ========== OTHER ========== */
         .user-box {
             background: var(--bg);
-            border-radius: 1rem;
-            padding: 12px;
+            border-radius: 0.8rem;
+            padding: 10px;
             cursor: pointer;
             border: 1px solid var(--border);
         }
-        .user-box:hover { background: var(--surface2); }
-        .result-bar { height: 8px; background: var(--surface2); border-radius: 8px; overflow: hidden; }
-        .result-fill { height: 8px; background: var(--primary); width: 0%; }
+        
         .essay-card {
             background: var(--bg);
-            border-radius: 1rem;
-            padding: 1.2rem;
-            margin-bottom: 16px;
+            border-radius: 0.8rem;
+            padding: 1rem;
+            margin-bottom: 12px;
             border: 1px solid var(--border);
         }
+        
         .card {
             background: var(--bg);
-            border-radius: 1rem;
-            padding: 1.2rem;
+            border-radius: 0.8rem;
+            padding: 1rem;
             border: 1px solid var(--border);
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
+        
+        @media (min-width: 768px) {
+            .essay-card, .card, .user-box {
+                border-radius: 1rem;
+                padding: 1.2rem;
+            }
+        }
+        
+        .result-bar { 
+            height: 6px; 
+            background: var(--surface2); 
+            border-radius: 6px; 
+            overflow: hidden; 
+        }
+        
+        .result-fill { 
+            height: 6px; 
+            background: var(--primary); 
+            width: 0%; 
+        }
+                /* ========== RESPONSIVE EXAM RESULT MODAL ========== */
+        #exam-result-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        #exam-result-modal .modal {
+            background: var(--bg);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #exam-result-modal .modal h3 {
+            padding: 16px;
+            margin: 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 1.1rem;
+            position: sticky;
+            top: 0;
+            background: var(--bg);
+        }
+        
+        #exam-result-modal .stats-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 12px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        #exam-result-modal .stat-card {
+            flex: 1;
+            min-width: 80px;
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 8px;
+            text-align: center;
+        }
+        
+        #exam-result-modal .stat-label {
+            font-size: 0.65rem;
+            color: var(--text3);
+        }
+        
+        #exam-result-modal .stat-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+        
+        #exam-result-modal .stat-value.correct { color: var(--success); }
+        #exam-result-modal .stat-value.wrong { color: var(--danger); }
+        
+        #exam-result-modal .table-container {
+            overflow-x: auto;
+            flex: 1;
+            padding: 12px;
+        }
+        
+        #exam-result-modal table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+            min-width: 500px;
+        }
+        
+        #exam-result-modal th {
+            background: var(--surface2);
+            padding: 8px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+        
+        #exam-result-modal td {
+            padding: 8px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+        
+        #exam-result-modal td:nth-child(2) {
+            max-width: 200px;
+            word-break: break-word;
+        }
+        
+        #exam-result-modal .status-correct { color: var(--success); font-size: 1.1rem; }
+        #exam-result-modal .status-wrong { color: var(--danger); font-size: 1.1rem; }
+        #exam-result-modal .answer-wrong { color: var(--danger); font-weight: bold; }
+        
+        #exam-result-modal .modal-footer {
+            padding: 12px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            background: var(--bg);
+        }
+        
+        @media (max-width: 600px) {
+            #exam-result-modal .modal {
+                width: 95%;
+                border-radius: 12px;
+            }
+            #exam-result-modal .modal h3 {
+                font-size: 0.9rem;
+                padding: 12px;
+            }
+            #exam-result-modal .stat-value {
+                font-size: 1rem;
+            }
+            #exam-result-modal .stat-label {
+                font-size: 0.55rem;
+            }
+            #exam-result-modal th, #exam-result-modal td {
+                padding: 5px;
+                font-size: 0.65rem;
+            }
+            #exam-result-modal td:nth-child(2) {
+                max-width: 120px;
+            }
+        }
+        
+        #exam-result-modal .btn {
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            background: var(--primary);
+            color: white;
+        }
+        /* ===== USER DASHBOARD STYLES ===== */
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.dashboard-card {
+    background: var(--bg);
+    border-radius: 1rem;
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.dashboard-card .value {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+.dashboard-card .label {
+    font-size: 0.7rem;
+    color: var(--text3);
+    margin-top: 4px;
+}
+.weak-section {
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 3px solid var(--danger);
+    padding: 8px 12px;
+    margin: 8px 0;
+    border-radius: 8px;
+}
+.strong-section {
+    background: rgba(16, 185, 129, 0.1);
+    border-left: 3px solid var(--success);
+    padding: 8px 12px;
+    margin: 8px 0;
+    border-radius: 8px;
+}
+.chart-container {
+    max-width: 100%;
+    margin: 20px 0;
+    padding: 16px;
+    background: var(--bg);
+    border-radius: 1rem;
+    border: 1px solid var(--border);
+}
+canvas { max-height: 300px; width: 100% !important; }
+
+/* ===== BULK UPLOAD STYLES ===== */
+.bulk-upload-area {
+    border: 2px dashed var(--border);
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 20px;
+}
+.bulk-upload-area:hover, .bulk-upload-area.drag-over {
+    border-color: var(--primary);
+    background: var(--surface);
+}
+.csv-preview {
+    max-height: 300px;
+    overflow-y: auto;
+    font-size: 0.7rem;
+}
+
+/* ===== PDF BUTTON ===== */
+.btn-pdf {
+    background: #dc2626;
+    color: white;
+}
+.btn-pdf:hover { background: #b91c1c; }
+/* ===== PDF FILES MANAGEMENT ===== */
+.pdf-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 20px;
+}
+.pdf-card {
+    background: var(--bg);
+    border-radius: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+    position: relative;
+}
+.pdf-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+.pdf-icon {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 10px;
+}
+.pdf-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    word-break: break-word;
+}
+.pdf-meta {
+    font-size: 0.65rem;
+    color: var(--text3);
+    margin-bottom: 10px;
+}
+.pdf-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+.pdf-actions .btn-sm {
+    flex: 1;
+    text-align: center;
+}
+.hidden-file {
+    opacity: 0.5;
+    background: var(--surface2);
+}
+.hidden-file .pdf-title {
+    text-decoration: line-through;
+}
+.badge-hidden {
+    background: #f59e0b;
+    color: white;
+    font-size: 0.6rem;
+    padding: 2px 6px;
+    border-radius: 20px;
+    margin-left: 8px;
+}
+.upload-area {
+    border: 2px dashed var(--border);
+    border-radius: 1rem;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 20px;
+}
+.upload-area:hover, .upload-area.drag-over {
+    border-color: var(--primary);
+    background: var(--surface);
+}
     </style>
 
 </head>
@@ -434,9 +982,11 @@
 <nav>
   <span class="nav-logo">⚡ USAT Prep</span>
   <button class="nav-btn active" onclick="showPage('home')">🏠 Home</button>
+  <button class="nav-btn" onclick="showPage('dashboard')">📊 Dashboard</button>
   <button class="nav-btn" onclick="showPage('exam')">📝 Exam</button>
   <button class="nav-btn" onclick="showPage('view')">👁 View MCQs</button>
   <button class="nav-btn" onclick="showPage('essays')">📄 Essays</button>
+  <button class="nav-btn" onclick="showPage('pdf')">📚 PDFs</button>
   <button class="nav-btn" onclick="showPage('suggest')">💡 Suggest</button>
   <span class="nav-spacer"></span>
   <button class="nav-btn admin-btn" onclick="showAdminLogin()">⚙ Admin</button>
@@ -444,13 +994,31 @@
 
 <!-- PAGES -->
 <div id="page-home" class="page active"><div class="hero"><h1>USAT Prep Platform</h1><p>Practice MCQs, take mock exams, read essays, and contribute questions — all in one place.</p></div><div class="home-cards"><div class="home-card" onclick="showPage('exam')"><div class="hc-icon">🎯</div><h3>Take Exam</h3><p>Choose sections & number of MCQs for a custom test session</p></div><div class="home-card" onclick="showPage('view')"><div class="hc-icon">📚</div><h3>Browse MCQs</h3><p>Study questions by section without time pressure</p></div><div class="home-card" onclick="showPage('essays')"><div class="hc-icon">✍️</div><h3>Essays</h3><p>Read argumentative & narrative essay samples</p></div><div class="home-card" onclick="showPage('suggest')"><div class="hc-icon">💡</div><h3>Suggest MCQ</h3><p>Contribute your own questions for admin review</p></div></div></div>
+<!-- USER DASHBOARD PAGE -->
+<div id="page-dashboard" class="page">
+    <h2>📊 My Dashboard</h2>
+    <div id="dashboard-content">
+        <div class="card" style="text-align:center">Loading your stats...</div>
+    </div>
+    <div style="margin-top:20px">
+        <button class="btn btn-pdf btn-sm" onclick="exportDashboardToPDF()">📑 Export Dashboard to PDF</button>
+    </div>
+</div>
 
 <div id="page-exam" class="page"><div id="exam-setup"><h2>📝 Custom Exam</h2><p class="subtitle">Select sections and how many MCQs you want from each.</p><div class="section-grid" id="exam-section-grid"></div><div style="margin-top:8px"><button class="btn btn-primary" onclick="startExam()">🚀 Start Exam</button></div></div><div id="exam-running" style="display:none"><div class="exam-progress"><div><div class="ep-label">Question</div><div class="ep-val" id="ep-current">1</div></div><div class="ep-divider"></div><div><div class="ep-label">Total</div><div class="ep-val" id="ep-total">0</div></div><div class="ep-divider"></div><div><div class="ep-label">Answered</div><div class="ep-val" id="ep-answered">0</div></div><div style="margin-left:auto"><button class="btn btn-warning btn-sm" onclick="submitExam()">Submit All</button></div></div><div id="exam-questions"></div><div style="margin-top:16px; display:flex; gap:10px;"><button class="btn btn-outline" onclick="showPage('exam');resetExam()">← Back</button><button class="btn btn-primary" onclick="submitExam()">Submit Exam</button></div></div><div id="exam-results" style="display:none"><h2 style="text-align:center; margin-bottom:24px">📊 Results</h2><div class="score-circle"><div class="sc-num" id="res-score"></div><div class="sc-label">Score</div></div><div id="res-breakdown" style="margin-bottom:24px"></div><div id="res-review"></div><div style="margin-top:24px; text-align:center"><button class="btn btn-primary" onclick="showPage('exam');resetExam()">New Exam</button></div></div></div>
 <div id="page-view" class="page"><h2>📚 Browse MCQs</h2><p class="subtitle">Select a section to study.</p><div class="section-grid" id="view-section-grid"></div><div id="view-content"></div></div>
 <div id="page-essays" class="page"><h2>✍️ Essays</h2><div class="tabs"><div class="tab active" onclick="filterEssays('Argumentative')">📖 Argumentative</div><div class="tab" onclick="filterEssays('Narrative')">📝 Narrative</div></div><div id="essay-list"></div></div>
+<!-- PDF FILES PAGE -->
+<div id="page-pdf" class="page">
+    <h2>📚 PDF Resources</h2>
+    <p class="subtitle">Download study materials, notes, and past papers</p>
+    <div id="pdf-list-container">
+        <div class="card" style="text-align:center">Loading PDF files...</div>
+    </div>
+</div>
 <div id="page-suggest" class="page"><h2>💡 Suggest MCQ</h2><p class="subtitle">Write a question and submit for admin review.</p><div class="card"><div class="form-group"><label>Section</label><select id="sug-section"></select></div><div class="form-group"><label>Question Statement</label><textarea id="sug-question" placeholder="Write the question here..."></textarea></div><div class="form-group"><label>Option A</label><input type="text" id="sug-a" placeholder="Option A"></div><div class="form-group"><label>Option B</label><input type="text" id="sug-b" placeholder="Option B"></div><div class="form-group"><label>Option C</label><input type="text" id="sug-c" placeholder="Option C"></div><div class="form-group"><label>Option D</label><input type="text" id="sug-d" placeholder="Option D"></div><div id="sug-suggestions" style="margin-top:8px"><div id="more-suggestions"></div><button class="btn btn-outline btn-sm" onclick="addMoreSuggestion()">+ Add Another MCQ</button></div><div style="margin-top:20px"><button class="btn btn-primary" onclick="submitSuggestion()">📤 Submit for Review</button></div></div></div>
 
-<div id="page-admin" class="page"><h2>⚙ Admin Panel</h2><div class="tabs" id="admin-tabs"><div class="tab active" onclick="adminTab('pending')">⏳ Pending</div><div class="tab" onclick="adminTab('approved')">✅ Approved</div><div class="tab" onclick="adminTab('rejected')">❌ Rejected</div><div class="tab" onclick="adminTab('add')">➕ Add MCQ</div><div class="tab" onclick="adminTab('essays')">📄 Essays</div><div class="tab" onclick="adminTab('sections')">🗂 Sections</div><div class="tab" onclick="adminTab('history')">📜 History</div></div><div id="admin-tab-content"></div></div>
+<div id="page-admin" class="page"><h2>⚙ Admin Panel</h2><div class="tabs" id="admin-tabs"><div class="tab active" onclick="adminTab('pending')">⏳ Pending</div><div class="tab" onclick="adminTab('approved')">✅ Approved</div><div class="tab" onclick="adminTab('rejected')">❌ Rejected</div><div class="tab" onclick="adminTab('add')">➕ Add MCQ</div>           <div class="tab" onclick="adminTab('bulk')">📤 Bulk Upload</div><div class="tab" onclick="adminTab('essays')">📄 Essays</div>  <div class="tab" onclick="adminTab('pdfs')">📁 PDF Manager</div><div class="tab" onclick="adminTab('sections')">🗂 Sections</div><div class="tab" onclick="adminTab('history')">📜 History</div></div><div id="admin-tab-content"></div></div>
 
 <!-- MODALS -->
 <div class="modal-overlay" id="admin-modal"><div class="modal"><h3>🔐 Admin Login</h3><div class="form-group"><label>Username</label><input type="text" id="admin-user" placeholder="Enter username"></div><div class="form-group"><label>Password</label><input type="password" id="admin-pass" placeholder="Enter password"></div><div id="login-error" style="color:var(--red);font-size:.82rem;margin-bottom:12px;display:none">Invalid credentials</div><div class="modal-footer"><button class="btn btn-outline" onclick="closeAdminModal()">Cancel</button><button class="btn btn-primary" onclick="doAdminLogin()">Login</button></div></div></div>
@@ -461,8 +1029,8 @@
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 <script>
-  // FIREBASE CONFIG (unchanged)
-  const firebaseConfig = {
+// FIREBASE CONFIG
+const firebaseConfig = {
     apiKey: "AIzaSyDhQghqcQcZelrsNrj3iYS_zhSVXP-0pys",
     authDomain: "usat-prep-portal.firebaseapp.com",
     projectId: "usat-prep-portal",
@@ -470,13 +1038,13 @@
     messagingSenderId: "1095118544729",
     appId: "1:1095118544729:web:8ef996ef0129fc9c6bf648",
     measurementId: "G-Z1REZFTE8V"
-  };
-  const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+};
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-  const ADMIN_USER = 'Tauseeflaghari8@usat.cs';
-  const ADMIN_PASS = 'A49a8855.@Usat';
-  const DEFAULT_SECTIONS = [
+const ADMIN_USER = 'Tauseeflaghari8@usat.cs';
+const ADMIN_PASS = 'A49a8855.@Usat';
+const DEFAULT_SECTIONS = [
     { id: 'quantitative', name: 'Quantitative Reasoning', icon: '🔢' },
     { id: 'physics', name: 'Physics', icon: '⚛️' },
     { id: 'math', name: 'Math', icon: '📐' },
@@ -486,60 +1054,88 @@
     { id: 'analogy', name: 'Analogy Types', icon: '🔗' },
     { id: 'opposites', name: 'Opposites', icon: '↔️' },
     { id: 'synonyms', name: 'Synonyms', icon: '🔄' },
-  ];
+];
 
-  // ---------- FIREBASE WRAPPERS (all live) ----------
-  async function loadFromFirebase(path, defaultVal) {
+// ========== FIREBASE WRAPPERS ==========
+async function loadFromFirebase(path, defaultVal) {
     const snap = await db.ref(path).once('value');
     return snap.val() !== null ? snap.val() : defaultVal;
-  }
-  function saveToFirebase(path, data) { db.ref(path).set(data); }
+}
+function saveToFirebase(path, data) { db.ref(path).set(data); }
 
-  let currentUser = "", sessionStartTime = null;
-  let isAdmin = false, currentAdminTab = 'pending';
-  let examQuestions = [], examAnswers = {};
-  let extraSuggestions = [], adminExtras = [];
+let currentUser = "", sessionStartTime = null;
+let isAdmin = false, currentAdminTab = 'pending';
+let examQuestions = [], examAnswers = {};
+let extraSuggestions = [], adminExtras = [];
 
-  // helpers
-  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
-  function showToast(msg, type = 'success') { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast show ' + type; setTimeout(() => t.classList.remove('show'), 3000); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+function showToast(msg, type = 'success') { const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast show ' + type; setTimeout(() => t.classList.remove('show'), 3000); }
 
-  // GLOBAL DATA GETTERS (sync from firebase promises)
-  let sectionsCache = [], mcqsCache = [], suggestionsCache = [], essaysCache = [];
-  async function refreshAllData() {
+// ========== GLOBAL DATA CACHES ==========
+let sectionsCache = [], mcqsCache = [], suggestionsCache = [], essaysCache = [];
+async function refreshAllData() {
     sectionsCache = await loadFromFirebase('sections', DEFAULT_SECTIONS);
     mcqsCache = await loadFromFirebase('mcqs', []);
     suggestionsCache = await loadFromFirebase('suggestions', []);
     essaysCache = await loadFromFirebase('essays', []);
-  }
-  function getSections() { return sectionsCache; }
-  function getMCQs() { return mcqsCache; }
-  function getSuggestions() { return suggestionsCache; }
-  function getEssays() { return essaysCache; }
-  async function commitMCQs() { await saveToFirebase('mcqs', mcqsCache); }
-  async function commitSuggestions() { await saveToFirebase('suggestions', suggestionsCache); }
-  async function commitEssays() { await saveToFirebase('essays', essaysCache); }
-  async function commitSections() { await saveToFirebase('sections', sectionsCache); }
+}
+function getSections() { return sectionsCache; }
+function getMCQs() { return mcqsCache; }
+function getSuggestions() { return suggestionsCache; }
+function getEssays() { return essaysCache; }
+async function commitMCQs() { await saveToFirebase('mcqs', mcqsCache); }
+async function commitSuggestions() { await saveToFirebase('suggestions', suggestionsCache); }
+async function commitEssays() { await saveToFirebase('essays', essaysCache); }
+async function commitSections() { await saveToFirebase('sections', sectionsCache); }
 
-  // SESSION start + firebase logging
-  async function saveActivity(action) {
+// ========== ACTIVITY LOGGING ==========
+async function saveActivity(action, examData = null) {
     if (!currentUser) return;
-    const pktTime = new Date().toLocaleString("en-GB", { timeZone: "Asia/Karachi", day:'2-digit',month:'2-digit',year:'numeric', hour:'2-digit', minute:'2-digit', hour12: true });
-    const duration = sessionStartTime ? Math.round((Date.now() - sessionStartTime) / 60000) + " mins" : "0 mins";
+    
+    const now = new Date();
+    const pktTime = now.toLocaleString("en-GB", { 
+        timeZone: "Asia/Karachi", 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit',
+        hour12: true 
+    });
+    
+    // Real session duration calculate karo
+    let duration = "0s";
+    if (sessionStartTime) {
+        const diffMs = Date.now() - sessionStartTime;
+        const hours = Math.floor(diffMs / 3600000);
+        const minutes = Math.floor((diffMs % 3600000) / 60000);
+        const seconds = Math.floor((diffMs % 60000) / 1000);
+        duration = `${hours > 0 ? hours + 'h ' : ''}${minutes > 0 ? minutes + 'm ' : ''}${seconds}s`;
+    }
+    
     const safeKey = currentUser.replace(/\./g, '_');
-    const logEntry = { time: pktTime, task: action, duration: duration, timestamp: Date.now() };
+    const logEntry = { 
+        time: pktTime, 
+        task: action, 
+        duration: duration,
+        timestamp: Date.now(),
+        examDetails: examData  // Exam details store karne ke liye
+    };
+    
     await db.ref('portal_logs/' + safeKey).push(logEntry);
-  }
+}
 
-  async function startUserSession() {
+// ========== USER SESSION ==========
+async function startUserSession() {
     const rawName = document.getElementById('user-session-name').value.trim();
     if (!rawName) { showToast("Please enter your name!", "error"); return; }
     if (rawName === "A49a8855.@Usat.cs") {
-      document.getElementById('welcome-screen').style.display = 'none';
-      await refreshAllData();
-      showPage('admin');
-      showToast("Welcome back, Admin!", "success");
-      return;
+        document.getElementById('welcome-screen').style.display = 'none';
+        await refreshAllData();
+        showPage('admin');
+        showToast("Welcome back, Admin!", "success");
+        return;
     }
     currentUser = rawName;
     sessionStartTime = Date.now();
@@ -547,208 +1143,1645 @@
     await refreshAllData();
     await saveActivity("Opened Portal");
     showPage('home');
-  }
+}
 
-  async function renderExamSetup() {
+// ========== PAGE NAVIGATION ==========
+window.showPage = function(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+    const btns = document.querySelectorAll('.nav-btn');
+    btns.forEach(btn => { if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'" + id + "'")) btn.classList.add('active'); });
+    if (id === 'exam') renderExamSetup();
+    if (id === 'view') renderViewSections();
+    if (id === 'essays') renderEssays('Argumentative');
+    if (id === 'suggest') renderSuggestSection();
+    if (id === 'pdf') renderPDFsForUser();
+    if (id === 'dashboard' && currentUser) loadUserDashboard();
+    if (id === 'admin' && isAdmin) renderAdminTab('pending');
+};
+
+// ========== EXAM FUNCTIONS ==========
+async function renderExamSetup() {
     const sections = getSections();
     const mcqs = getMCQs();
     const grid = document.getElementById('exam-section-grid');
+    if (!grid) return;
     grid.innerHTML = '';
     sections.forEach(sec => {
-      const count = mcqs.filter(m => m.section === sec.id).length;
-      const card = document.createElement('div');
-      card.className = 'section-card';
-      card.dataset.id = sec.id;
-      card.innerHTML = `<div class="s-icon">${sec.icon}</div><div class="s-name">${sec.name}</div><div style="font-size:.72rem;color:var(--text3);margin:4px 0">${count} available</div><input type="number" min="1" max="${count}" placeholder="# MCQs" style="width:80px;" onclick="event.stopPropagation()" id="exam-count-${sec.id}">`;
-      card.onclick = () => card.classList.toggle('selected');
-      grid.appendChild(card);
+        const count = mcqs.filter(m => m.section === sec.id).length;
+        const card = document.createElement('div');
+        card.className = 'section-card';
+        card.dataset.id = sec.id;
+        card.innerHTML = `<div class="s-icon">${sec.icon}</div><div class="s-name">${sec.name}</div><div style="font-size:.72rem;color:var(--text3);margin:4px 0">${count} available</div><input type="number" min="1" max="${count}" placeholder="# MCQs" style="width:80px;" onclick="event.stopPropagation()" id="exam-count-${sec.id}">`;
+        card.onclick = () => card.classList.toggle('selected');
+        grid.appendChild(card);
     });
-  }
+}
 
-  async function startExam() {
+async function startExam() {
     await saveActivity("Started Exam");
     const sections = getSections();
     const mcqs = getMCQs();
     examQuestions = []; examAnswers = {};
+    
     sections.forEach(sec => {
-      const card = document.querySelector(`.section-card[data-id="${sec.id}"]`);
-      if (!card || !card.classList.contains('selected')) return;
-      const inp = document.getElementById('exam-count-' + sec.id);
-      const n = parseInt(inp.value) || 0;
-      if (n <= 0) return;
-      const pool = mcqs.filter(m => m.section === sec.id);
-      const shuffled = pool.sort(() => Math.random() - .5).slice(0, n);
-      examQuestions.push(...shuffled);
+        const card = document.querySelector(`.section-card[data-id="${sec.id}"]`);
+        const inp = document.getElementById('exam-count-' + sec.id);
+        const n = parseInt(inp?.value) || 0;
+        
+        // Agar section select hai ya count diya hai to include karo
+        if ((card && card.classList.contains('selected')) || n > 0) {
+            if (n <= 0) return;
+            const pool = mcqs.filter(m => m.section === sec.id);
+            if (pool.length === 0) return;
+            const shuffled = pool.sort(() => Math.random() - 0.5).slice(0, Math.min(n, pool.length));
+            examQuestions.push(...shuffled);
+        }
     });
-    if (!examQuestions.length) { showToast('Please select sections and enter MCQ count', 'error'); return; }
+    
+    // Agar kisi ne sirf count diya hai (bagair select kiye) toh bhi le lo
+    sections.forEach(sec => {
+        const inp = document.getElementById('exam-count-' + sec.id);
+        const n = parseInt(inp?.value) || 0;
+        const card = document.querySelector(`.section-card[data-id="${sec.id}"]`);
+        // Agar count hai lekin section select nahi hai aur already examQuestions mein nahi hai
+        if (n > 0 && (!card || !card.classList.contains('selected'))) {
+            const alreadyAdded = examQuestions.some(q => q.section === sec.id);
+            if (!alreadyAdded) {
+                const pool = mcqs.filter(m => m.section === sec.id);
+                if (pool.length > 0) {
+                    const shuffled = pool.sort(() => Math.random() - 0.5).slice(0, Math.min(n, pool.length));
+                    examQuestions.push(...shuffled);
+                }
+            }
+        }
+    });
+    
+    if (!examQuestions.length) { 
+        showToast('Please enter MCQ count for at least one section', 'error'); 
+        return; 
+    }
+    
     document.getElementById('exam-setup').style.display = 'none';
     document.getElementById('exam-running').style.display = 'block';
     document.getElementById('exam-results').style.display = 'none';
     document.getElementById('ep-total').textContent = examQuestions.length;
+    document.getElementById('ep-current').textContent = '0';
+    document.getElementById('ep-answered').textContent = '0';
     renderExamQuestions();
-  }
+}
 
-  function renderExamQuestions() {
+function renderExamQuestions() {
     const container = document.getElementById('exam-questions');
+    if (!container) return;
     container.innerHTML = '';
+    
     examQuestions.forEach((q, i) => {
-      const div = document.createElement('div');
-      div.className = 'mcq-card';
-      div.id = 'eq-' + i;
-      div.innerHTML = `<div class="q-num">Q${i+1} · ${getSections().find(s=>s.id===q.section)?.name||q.section}</div><div class="q-text">${q.question}</div>${['A','B','C','D'].map(opt => `<div class="option-row" id="opt-${i}-${opt}" onclick="selectExamOption(${i},'${opt}')"><div class="option-dot" id="dot-${i}-${opt}"></div><div class="option-label"><strong>${opt}.</strong> ${q['option'+opt]}</div></div>`).join('')}`;
-      container.appendChild(div);
+        const div = document.createElement('div');
+        div.className = 'mcq-card';
+        div.id = 'eq-' + i;
+        div.innerHTML = `<div class="q-num">Q${i + 1} · ${getSections().find(s => s.id === q.section)?.name || q.section}</div>
+            <div class="q-text">${q.question}</div>
+            ${['A', 'B', 'C', 'D'].map(opt => `
+                <div class="option-row" id="opt-${i}-${opt}" onclick="selectExamOption(${i},'${opt}')">
+                    <div class="option-dot" id="dot-${i}-${opt}"></div>
+                    <div class="option-label"><strong>${opt}.</strong> ${q['option' + opt]}</div>
+                </div>
+            `).join('')}`;
+        container.appendChild(div);
     });
+    
+    // Previously selected options ko restore karo (agar pehle se select kiye hue hain)
+    for (const [qi, opt] of Object.entries(examAnswers)) {
+        const optionRow = document.getElementById(`opt-${qi}-${opt}`);
+        if (optionRow) {
+            optionRow.classList.add('selected');
+            const dot = document.getElementById(`dot-${qi}-${opt}`);
+            if (dot) dot.style.background = 'var(--primary)';
+        }
+    }
+    
     updateExamProgress();
-  }
-  function selectExamOption(qi, opt) { ['A','B','C','D'].forEach(o => document.getElementById('opt-'+qi+'-'+o)?.classList.remove('selected')); document.getElementById('opt-'+qi+'-'+opt)?.classList.add('selected'); examAnswers[qi] = opt; updateExamProgress(); }
-  function updateExamProgress() { document.getElementById('ep-current').textContent = Object.keys(examAnswers).length; document.getElementById('ep-answered').textContent = Object.keys(examAnswers).length; }
-  async function submitExam() {
-    await saveActivity("Submitted Exam");
-    if (Object.keys(examAnswers).length < examQuestions.length) { showToast('Please answer all questions before submitting!', 'error'); for(let i=0;i<examQuestions.length;i++) if(!examAnswers[i]) { document.getElementById('eq-'+i).scrollIntoView({ behavior: 'smooth', block: 'center' }); break; } return; }
+}
+
+function selectExamOption(qi, opt) {
+    // Pehle saare options se selected class hatao is question ke liye
+    ['A', 'B', 'C', 'D'].forEach(o => {
+        const row = document.getElementById('opt-' + qi + '-' + o);
+        if (row) {
+            row.classList.remove('selected');
+            const dot = document.getElementById('dot-' + qi + '-' + o);
+            if (dot) dot.style.background = '';
+        }
+    });
+    
+    // Naye selected option ko highlight karo
+    const selectedRow = document.getElementById('opt-' + qi + '-' + opt);
+    if (selectedRow) {
+        selectedRow.classList.add('selected');
+        const selectedDot = document.getElementById('dot-' + qi + '-' + opt);
+        if (selectedDot) selectedDot.style.background = 'var(--primary)';
+    }
+    
+    examAnswers[qi] = opt;
+    updateExamProgress();
+}
+
+function updateExamProgress() {
+    const answered = Object.keys(examAnswers).length;
+    document.getElementById('ep-current').textContent = answered;
+    document.getElementById('ep-answered').textContent = answered;
+}
+
+async function submitExam() {
+    // Exam details prepare karo (questions ke saath)
+    const sectionsUsed = {};
+    const questionsData = [];
+    let totalMcqs = examQuestions.length;
+    let correctCount = 0;
+    
+    examQuestions.forEach((q, i) => {
+        const chosen = examAnswers[i];
+        const isCorrect = chosen === q.correct;
+        if (isCorrect) correctCount++;
+        
+        // Har question ka data store karo
+        questionsData.push({
+            questionText: q.question,
+            userAnswer: chosen || 'Not answered',
+            correctAnswer: q.correct,
+            isCorrect: isCorrect,
+            section: q.section
+        });
+        
+        if (!sectionsUsed[q.section]) {
+            sectionsUsed[q.section] = { 
+                total: 0, 
+                correct: 0, 
+                name: getSections().find(s => s.id === q.section)?.name || q.section 
+            };
+        }
+        sectionsUsed[q.section].total++;
+        if (isCorrect) sectionsUsed[q.section].correct++;
+    });
+    
+    const examData = {
+        totalMcqs: totalMcqs,
+        correct: correctCount,
+        wrong: totalMcqs - correctCount,
+        percentage: Math.round((correctCount / totalMcqs) * 100),
+        sections: sectionsUsed,
+        questions: questionsData  // Sab questions ka data
+    };
+    
+    await saveActivity("Submitted Exam", examData);
+    
+    // Check all questions answered
+    if (Object.keys(examAnswers).length < examQuestions.length) {
+        showToast('Please answer all questions before submitting!', 'error');
+        for (let i = 0; i < examQuestions.length; i++) {
+            if (!examAnswers[i]) {
+                const element = document.getElementById('eq-' + i);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    element.style.border = "2px solid var(--danger)";
+                    setTimeout(() => { element.style.border = ""; }, 2000);
+                }
+                break;
+            }
+        }
+        return;
+    }
+    
     let correct = 0;
-    examQuestions.forEach((q, i) => { const chosen = examAnswers[i]; const isCorrect = chosen === q.correct; if (isCorrect) correct++; });
-    document.getElementById('exam-running').style.display = 'block';
+    
+    examQuestions.forEach((q, i) => {
+        const chosen = examAnswers[i];
+        const isCorrect = chosen === q.correct;
+        if (isCorrect) correct++;
+        
+        ['A', 'B', 'C', 'D'].forEach(opt => {
+            const row = document.getElementById('opt-' + i + '-' + opt);
+            if (!row) return;
+            
+            row.onclick = null;
+            row.style.cursor = 'default';
+            
+            const dot = document.getElementById('dot-' + i + '-' + opt);
+            
+            if (opt === q.correct) {
+                row.classList.add('correct');
+                row.classList.remove('selected', 'wrong');
+                if (dot) dot.style.background = 'var(--success)';
+            }
+            else if (opt === chosen && !isCorrect) {
+                row.classList.add('wrong');
+                row.classList.remove('selected', 'correct');
+                if (dot) dot.style.background = 'var(--danger)';
+            }
+            else if (opt === chosen && isCorrect) {
+                row.classList.add('correct');
+                if (dot) dot.style.background = 'var(--success)';
+            }
+        });
+        
+        const mcqCard = document.getElementById('eq-' + i);
+        if (mcqCard) {
+            mcqCard.style.border = "";
+            const existingFeedback = mcqCard.querySelector('.exam-feedback');
+            if (existingFeedback) existingFeedback.remove();
+            
+            const feedback = document.createElement('div');
+            feedback.className = 'exam-feedback';
+            feedback.style.marginTop = "12px";
+            feedback.style.padding = "8px 12px";
+            feedback.style.borderRadius = "8px";
+            feedback.style.fontSize = "0.75rem";
+            
+            if (!chosen) {
+                feedback.style.background = "var(--surface2)";
+                feedback.innerHTML = `❓ Not Answered. Correct Answer: ${q.correct}`;
+            } else if (isCorrect) {
+                feedback.style.background = "rgba(16, 185, 129, 0.15)";
+                feedback.innerHTML = `✅ Correct! Well done.`;
+            } else {
+                feedback.style.background = "rgba(239, 68, 68, 0.15)";
+                feedback.innerHTML = `❌ Your answer: ${chosen} | Correct answer: ${q.correct}`;
+            }
+            mcqCard.appendChild(feedback);
+        }
+    });
+    
+    const submitBtns = document.querySelectorAll('#exam-running button[onclick="submitExam()"]');
+    submitBtns.forEach(btn => btn.style.display = 'none');
+    
     document.getElementById('exam-results').style.display = 'block';
     document.getElementById('res-score').textContent = correct + '/' + examQuestions.length;
+    
     const bySection = {};
-    examQuestions.forEach((q,i) => { if (!bySection[q.section]) bySection[q.section] = { total: 0, correct: 0 }; bySection[q.section].total++; if (examAnswers[i] === q.correct) bySection[q.section].correct++; });
-    let bd = ''; for (const sid in bySection) { const s = getSections().find(x=>x.id===sid); const pct = Math.round(bySection[sid].correct/bySection[sid].total*100); bd += `<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>${s?.icon||''} ${s?.name||sid}</span><span>${bySection[sid].correct}/${bySection[sid].total}</span></div><div class="result-bar"><div class="result-fill" style="width:${pct}%"></div></div></div>`; }
+    examQuestions.forEach((q, i) => {
+        if (!bySection[q.section]) bySection[q.section] = { total: 0, correct: 0 };
+        bySection[q.section].total++;
+        if (examAnswers[i] === q.correct) bySection[q.section].correct++;
+    });
+    
+    let bd = '';
+    for (const sid in bySection) {
+        const s = getSections().find(x => x.id === sid);
+        const pct = Math.round(bySection[sid].correct / bySection[sid].total * 100);
+        bd += `<div style="margin-bottom:14px">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px">
+                <span>${s?.icon || ''} ${s?.name || sid}</span>
+                <span style="font-weight:600">${bySection[sid].correct}/${bySection[sid].total}</span>
+            </div>
+            <div class="result-bar"><div class="result-fill" style="width:${pct}%"></div></div>
+        </div>`;
+    }
     document.getElementById('res-breakdown').innerHTML = bd;
-  }
-  function resetExam() { examQuestions = []; examAnswers = {}; document.getElementById('exam-setup').style.display = 'block'; document.getElementById('exam-running').style.display = 'none'; document.getElementById('exam-results').style.display = 'none'; renderExamSetup(); }
+    document.getElementById('exam-results').scrollIntoView({ behavior: 'smooth' });
+}
 
-  // View, Essays, Suggestions etc identical but using live data.
-  async function renderViewSections() { const sections = getSections(); const grid = document.getElementById('view-section-grid'); grid.innerHTML = ''; sections.forEach(sec => { const card = document.createElement('div'); card.className = 'section-card'; card.innerHTML = `<div class="s-icon">${sec.icon}</div><div class="s-name">${sec.name}</div>`; card.onclick = () => viewSection(sec.id); grid.appendChild(card); }); document.getElementById('view-content').innerHTML = ''; }
-  function viewSection(secId) { const mcqs = getMCQs().filter(m => m.section === secId); const sec = getSections().find(s => s.id === secId); const container = document.getElementById('view-content'); if (!mcqs.length) { container.innerHTML = `<div class="card" style="text-align:center;color:var(--text2)">No MCQs in this section yet.</div>`; return; } container.innerHTML = `<h3 style="margin-bottom:16px">${sec?.icon||''} ${sec?.name||secId} — ${mcqs.length} MCQs</h3>` + mcqs.map((q,i)=>`<div class="mcq-card"><div class="q-num">Q${i+1}</div><div class="q-text">${q.question}</div>${['A','B','C','D'].map(opt => `<div class="option-row ${opt===q.correct?'correct':''}"><div class="option-dot"></div><div class="option-label"><strong>${opt}.</strong> ${q['option'+opt]}</div></div>`).join('')}<div style="margin-top:10px"><span class="badge badge-green">✓ Answer: ${q.correct}</span></div></div>`).join(''); container.scrollIntoView({ behavior: 'smooth' }); }
-  function renderEssays(type) { const essays = getEssays().filter(e => e.type === type); const el = document.getElementById('essay-list'); if (!essays.length) { el.innerHTML = `<div class="card" style="text-align:center;color:var(--text2)">No ${type} essays yet.</div>`; return; } el.innerHTML = essays.map(e => `<div class="essay-card"><span class="essay-type-badge ${e.type==='Argumentative'?'badge-blue':'badge-gold'}">${e.type}</span><h4>${e.title}</h4><p>${e.content}</p></div>`).join(''); }
-  function filterEssays(type) { renderEssays(type); }
-  function renderSuggestSection() { const sel = document.getElementById('sug-section'); if(sel) sel.innerHTML = getSections().map(s => `<option value="${s.id}">${s.name}</option>`).join(''); extraSuggestions=[]; document.getElementById('more-suggestions').innerHTML=''; }
-  function addMoreSuggestion() { const idx = extraSuggestions.length; extraSuggestions.push({}); const div = document.createElement('div'); div.className='card'; div.style.marginBottom='16px'; div.id='extra-sug-'+idx; div.innerHTML = `<div style="display:flex;justify-content:space-between"><strong>MCQ #${idx+2}</strong><button class="btn btn-danger btn-sm" onclick="document.getElementById('extra-sug-${idx}').remove()">Remove</button></div><div class="form-group"><label>Section</label><select id="sug2-section-${idx}">${getSections().map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}</select></div><div class="form-group"><label>Question</label><textarea id="sug2-q-${idx}"></textarea></div><div class="form-group"><label>A</label><input type="text" id="sug2-a-${idx}"></div><div class="form-group"><label>B</label><input type="text" id="sug2-b-${idx}"></div><div class="form-group"><label>C</label><input type="text" id="sug2-c-${idx}"></div><div class="form-group"><label>D</label><input type="text" id="sug2-d-${idx}"></div>`; document.getElementById('more-suggestions').appendChild(div); }
-  async function submitSuggestion() { const q = document.getElementById('sug-question').value.trim(); const a=document.getElementById('sug-a').value.trim(), b=document.getElementById('sug-b').value.trim(), c=document.getElementById('sug-c').value.trim(), d=document.getElementById('sug-d').value.trim(), sec=document.getElementById('sug-section').value; if(!q||!a||!b||!c||!d){ showToast('Fill all fields for MCQ #1','error'); return; } const newSug = { id: uid(), section: sec, question: q, optionA: a, optionB: b, optionC: c, optionD: d, correct: '', status: 'pending', ts: Date.now() }; suggestionsCache.push(newSug); await commitSuggestions(); showToast('Submitted! Awaiting admin approval ✅','success'); document.getElementById('sug-question').value=''; ['a','b','c','d'].forEach(x=>document.getElementById('sug-'+x).value=''); extraSuggestions=[]; document.getElementById('more-suggestions').innerHTML=''; await refreshAllData(); }
-  
-  // Admin functions (full sync)
-  function showAdminLogin() { if(isAdmin){ showPage('admin'); return; } document.getElementById('admin-modal').classList.add('open'); }
-  function closeAdminModal() { document.getElementById('admin-modal').classList.remove('open'); }
-  function doAdminLogin() { const u = document.getElementById('admin-user').value, p = document.getElementById('admin-pass').value; if(u===ADMIN_USER && p===ADMIN_PASS){ isAdmin=true; closeAdminModal(); showPage('admin'); } else document.getElementById('login-error').style.display='block'; }
-  async function adminTab(tab) { currentAdminTab=tab; document.querySelectorAll('#admin-tabs .tab').forEach((t,i)=>{ const tabs=['pending','approved','rejected','add','essays','sections','history']; t.classList.toggle('active', tabs[i]===tab); }); await renderAdminTab(tab); }
-  async function renderAdminTab(tab) { await refreshAllData(); const el=document.getElementById('admin-tab-content'); if(tab==='pending') el.innerHTML = renderSuggestionsTable('pending'); else if(tab==='approved') el.innerHTML = renderMCQsTable(); else if(tab==='rejected') el.innerHTML = renderSuggestionsTable('rejected'); else if(tab==='add') el.innerHTML = renderAdminAddForm(); else if(tab==='essays') el.innerHTML = renderAdminEssays(); else if(tab==='sections') el.innerHTML = renderAdminSections(); else if(tab==='history') el.innerHTML = await renderAdminHistory(); }
-  function renderSuggestionsTable(status) { const sugs = getSuggestions().filter(s => s.status === status); if(!sugs.length) return `<div class="card" style="text-align:center;color:var(--text2)">No ${status} suggestions.</div>`; return `<div class="card"><table style="width:100%"><tr><th>Section</th><th>Question</th><th>Options</th><th>Actions</th></tr>${sugs.map(s => `<tr><td><span class="badge badge-blue">${getSections().find(x=>x.id===s.section)?.name||s.section}</span></td><td style="max-width:200px">${s.question}</td><td style="font-size:.78rem">A: ${s.optionA}<br>B: ${s.optionB}<br>C: ${s.optionC}<br>D: ${s.optionD}</td><td>${status==='pending'?`<button class="btn btn-success btn-sm" onclick="approveSuggestion('${s.id}')">Approve</button> `:``}<button class="btn btn-warning btn-sm" onclick="openEditSuggestion('${s.id}')">Edit</button>${status==='pending'?`<button class="btn btn-danger btn-sm" onclick="rejectSuggestion('${s.id}')">Reject</button>`:`<button class="btn btn-danger btn-sm" onclick="deleteSuggestion('${s.id}')">Delete</button>`}</td></tr>`).join('')}</table></div>`; }
-  function renderMCQsTable() { const mcqs = getMCQs(); if(!mcqs.length) return `<div class="card">No approved MCQs yet.</div>`; return `<div class="card"><table><tr><th>Section</th><th>Question</th><th>Correct</th><th>Actions</th></tr>${mcqs.map(m => `<tr><td><span class="badge badge-blue">${getSections().find(x=>x.id===m.section)?.name||m.section}</span></td><td>${m.question}</td><td><span class="badge badge-green">${m.correct}</span></td><td><button class="btn btn-warning btn-sm" onclick="openEditMCQ('${m.id}')">Edit</button> <button class="btn btn-danger btn-sm" onclick="deleteMCQ('${m.id}')">Delete</button></td></tr>`).join('')}</table></div>`; }
-  function renderAdminAddForm() { return `<div class="card"><h3>Add New MCQ</h3><div class="form-group"><label>Section</label><select id="add-section">${getSections().map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}</select></div><div class="form-group"><label>Question</label><textarea id="add-question"></textarea></div><div class="form-row"><div class="form-group"><label>A</label><input id="add-a"></div><div class="form-group"><label>B</label><input id="add-b"></div></div><div class="form-row"><div class="form-group"><label>C</label><input id="add-c"></div><div class="form-group"><label>D</label><input id="add-d"></div></div><div class="form-group"><label>Correct</label><select id="add-correct"><option>A</option><option>B</option><option>C</option><option>D</option></select></div><button class="btn btn-success" onclick="adminAddMCQ()">✅ Add MCQ</button><div id="add-more-container"></div><button class="btn btn-outline btn-sm" onclick="adminAddMore()">+ Add Another</button></div>`; }
-  function renderAdminEssays() { const essays = getEssays(); return `<div class="card"><div style="display:flex;justify-content:space-between"><h3>Manage Essays</h3><button class="btn btn-primary btn-sm" onclick="openEssayModal()">+ Add Essay</button></div>${essays.length ? `<table><tr><th>Type</th><th>Title</th><th>Actions</th></tr>${essays.map(e=>`<tr><td><span class="badge ${e.type==='Argumentative'?'badge-blue':'badge-gold'}">${e.type}</span></td><td>${e.title}</td><td><button class="btn btn-warning btn-sm" onclick="openEssayModal('${e.id}')">Edit</button> <button class="btn btn-danger btn-sm" onclick="deleteEssay('${e.id}')">Delete</button></td></tr>`).join('')}</table>` : '<p>No essays yet.</p>'}</div>`; }
-  function renderAdminSections() { return `<div class="card"><h3>Manage Sections</h3>${getSections().map(s=>`<div style="display:flex;gap:10px;padding:8px;background:var(--surface2);margin-bottom:8px;border-radius:12px"><span>${s.icon}</span><span style="flex:1">${s.name}</span><button class="btn btn-danger btn-sm" onclick="deleteSection('${s.id}')">Delete</button></div>`).join('')}<h3>Add Section</h3><div class="form-row"><div class="form-group"><label>Icon</label><input id="new-sec-icon" placeholder="📚"></div><div class="form-group"><label>Name</label><input id="new-sec-name"></div></div><button class="btn btn-primary" onclick="addSection()">Add Section</button></div>`; }
-  async function renderAdminHistory() { const snap = await db.ref('portal_logs').once('value'); const data = snap.val() || {}; const users = Object.keys(data); let html = `<div class="card" style="margin-bottom:16px;"><div style="background:var(--accent); color:white; padding:12px; border-radius:20px;">Total Visitors: ${users.length}</div></div><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;">`; users.forEach(u => { const logs = Object.values(data[u]); const last = logs[logs.length-1]; html += `<div class="card user-box" onclick="viewFirebaseUser('${u}')"><div><strong>${u.replace(/_/g,'.')}</strong><div style="font-size:12px">Last: ${last?.time||''}</div><span class="badge">${logs.length}</span></div></div>`; }); html+=`</div><div id="user-detail-view"></div>`; return html; }
-  window.viewFirebaseUser = async function(userName) { const snap = await db.ref('portal_logs/'+userName).once('value'); const logs = Object.values(snap.val()||{}); const container=document.getElementById('user-detail-view'); if(!logs.length){ container.innerHTML=`<div class="card">No records</div>`; return; } let html=`<div class="card"><h3>${userName}</h3><table><tr><th>Time</th><th>Activity</th><th>Duration</th></tr>`; logs.forEach(l=>{ html+=`<tr><td>${l.time}</td><td>${l.task}</td><td>${l.duration}</td></tr>`; }); html+=`</table></div>`; container.innerHTML=html; };
-  // CRUD ops with commit
-  async function approveSuggestion(id) { const sug = suggestionsCache.find(s=>s.id===id); if(!sug)return; if(!sug.correct){ showToast('Set correct answer first','error'); return; } sug.status='approved'; await commitSuggestions(); mcqsCache.push({ id: uid(), section: sug.section, question: sug.question, optionA: sug.optionA, optionB: sug.optionB, optionC: sug.optionC, optionD: sug.optionD, correct: sug.correct }); await commitMCQs(); await refreshAllData(); renderAdminTab('pending'); showToast('Approved','success'); }
-  async function rejectSuggestion(id) { const sug = suggestionsCache.find(s=>s.id===id); if(sug) sug.status='rejected'; await commitSuggestions(); await refreshAllData(); renderAdminTab('pending'); }
-  async function deleteSuggestion(id) { suggestionsCache = suggestionsCache.filter(s=>s.id!==id); await commitSuggestions(); await refreshAllData(); renderAdminTab(currentAdminTab); }
-  async function deleteMCQ(id) { mcqsCache = mcqsCache.filter(m=>m.id!==id); await commitMCQs(); await refreshAllData(); renderAdminTab('approved'); }
-  async function adminAddMCQ() { const q=document.getElementById('add-question')?.value.trim(); const a=document.getElementById('add-a')?.value.trim(),b=document.getElementById('add-b')?.value.trim(),c=document.getElementById('add-c')?.value.trim(),d=document.getElementById('add-d')?.value.trim(),sec=document.getElementById('add-section')?.value,cor=document.getElementById('add-correct')?.value; if(!q||!a||!b||!c||!d){ showToast('Fill all','error'); return; } mcqsCache.push({ id: uid(), section: sec, question: q, optionA: a,optionB:b,optionC:c,optionD:d, correct: cor }); await commitMCQs(); await refreshAllData(); renderAdminTab('add'); showToast('Added','success'); }
-  window.insertTag = (id,open,close='')=>{ const el=document.getElementById(id); if(!el)return; const start=el.selectionStart,end=el.selectionEnd,text=el.value; el.value=text.substring(0,start)+open+text.substring(start,end)+close+text.substring(end); el.focus(); };
-  window.showPage = (id) => { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page-'+id).classList.add('active'); if(id==='exam') renderExamSetup(); if(id==='view') renderViewSections(); if(id==='essays') renderEssays('Argumentative'); if(id==='suggest') renderSuggestSection(); if(id==='admin' && isAdmin) renderAdminTab('pending'); };
-  
-  // edit, essay, sections
-window.openEditSuggestion = function(id) {
-  const s = suggestionsCache.find(x => x.id === id);
-  if (!s) return;
-  
-  document.getElementById('edit-id').value = 'sug:' + id;
-  
-  // Populate sections dropdown
-  document.getElementById('edit-section').innerHTML = getSections().map(sec => 
-    `<option value="${sec.id}" ${sec.id === s.section ? 'selected' : ''}>${sec.name}</option>`
-  ).join('');
-  
-  document.getElementById('edit-question').value = s.question;
-  document.getElementById('edit-a').value = s.optionA;
-  document.getElementById('edit-b').value = s.optionB;
-  document.getElementById('edit-c').value = s.optionC;
-  document.getElementById('edit-d').value = s.optionD;
-  document.getElementById('edit-correct').value = s.correct || 'A';
-  
-  document.getElementById('edit-modal').classList.add('open');
+function resetExam() {
+    examQuestions = [];
+    examAnswers = {};
+    document.getElementById('exam-setup').style.display = 'block';
+    document.getElementById('exam-running').style.display = 'none';
+    document.getElementById('exam-results').style.display = 'none';
+    const submitBtns = document.querySelectorAll('#exam-running button[onclick="submitExam()"]');
+    submitBtns.forEach(btn => btn.style.display = 'block');
+    renderExamSetup();
+}
+
+// ========== VIEW MCQs ==========
+async function renderViewSections() {
+    const sections = getSections();
+    const grid = document.getElementById('view-section-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    sections.forEach(sec => {
+        const card = document.createElement('div');
+        card.className = 'section-card';
+        card.innerHTML = `<div class="s-icon">${sec.icon}</div><div class="s-name">${sec.name}</div>`;
+        card.onclick = () => viewSection(sec.id);
+        grid.appendChild(card);
+    });
+    document.getElementById('view-content').innerHTML = '';
+}
+
+function viewSection(secId) {
+    const mcqs = getMCQs().filter(m => m.section === secId);
+    const sec = getSections().find(s => s.id === secId);
+    const container = document.getElementById('view-content');
+    if (!mcqs.length) { container.innerHTML = `<div class="card" style="text-align:center;color:var(--text2)">No MCQs in this section yet.</div>`; return; }
+    container.innerHTML = `<h3 style="margin-bottom:16px">${sec?.icon || ''} ${sec?.name || secId} — ${mcqs.length} MCQs</h3>` + mcqs.map((q, i) => `<div class="mcq-card"><div class="q-num">Q${i + 1}</div><div class="q-text">${q.question}</div>${['A', 'B', 'C', 'D'].map(opt => `<div class="option-row ${opt === q.correct ? 'correct' : ''}"><div class="option-dot"></div><div class="option-label"><strong>${opt}.</strong> ${q['option' + opt]}</div></div>`).join('')}<div style="margin-top:10px"><span class="badge badge-green">✓ Answer: ${q.correct}</span></div></div>`).join('');
+    container.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ========== ESSAYS ==========
+function renderEssays(type) {
+    const essays = getEssays().filter(e => e.type === type);
+    const el = document.getElementById('essay-list');
+    if (!essays.length) { el.innerHTML = `<div class="card" style="text-align:center;color:var(--text2)">No ${type} essays yet.</div>`; return; }
+    el.innerHTML = essays.map(e => `<div class="essay-card"><span class="badge ${e.type === 'Argumentative' ? 'badge-blue' : 'badge-gold'}">${e.type}</span><h4 style="margin:8px 0">${e.title}</h4><p>${e.content}</p></div>`).join('');
+}
+
+function filterEssays(type) { renderEssays(type); }
+
+// ========== SUGGEST MCQ ==========
+function renderSuggestSection() {
+    const sel = document.getElementById('sug-section');
+    if (sel) sel.innerHTML = getSections().map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+    extraSuggestions = [];
+    document.getElementById('more-suggestions').innerHTML = '';
+}
+
+function addMoreSuggestion() {
+    const idx = extraSuggestions.length;
+    extraSuggestions.push({});
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.style.marginBottom = '16px';
+    div.id = 'extra-sug-' + idx;
+    div.innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:10px"><strong>MCQ #${idx + 2}</strong><button class="btn btn-danger btn-sm" onclick="document.getElementById('extra-sug-${idx}').remove(); extraSuggestions.splice(${idx},1)">Remove</button></div><div class="form-group"><label>Section</label><select id="sug2-section-${idx}">${getSections().map(s => `<option value="${s.id}">${s.name}</option>`).join('')}</select></div><div class="form-group"><label>Question</label><textarea id="sug2-q-${idx}"></textarea></div><div class="form-group"><label>A</label><input type="text" id="sug2-a-${idx}"></div><div class="form-group"><label>B</label><input type="text" id="sug2-b-${idx}"></div><div class="form-group"><label>C</label><input type="text" id="sug2-c-${idx}"></div><div class="form-group"><label>D</label><input type="text" id="sug2-d-${idx}"></div>`;
+    document.getElementById('more-suggestions').appendChild(div);
+}
+
+async function submitSuggestion() {
+    const q = document.getElementById('sug-question').value.trim();
+    const a = document.getElementById('sug-a').value.trim();
+    const b = document.getElementById('sug-b').value.trim();
+    const c = document.getElementById('sug-c').value.trim();
+    const d = document.getElementById('sug-d').value.trim();
+    const sec = document.getElementById('sug-section').value;
+    if (!q || !a || !b || !c || !d) { showToast('Fill all fields for MCQ #1', 'error'); return; }
+    suggestionsCache.push({ id: uid(), section: sec, question: q, optionA: a, optionB: b, optionC: c, optionD: d, correct: '', status: 'pending', ts: Date.now() });
+    // Save extra suggestions
+    for (let idx = 0; idx < extraSuggestions.length; idx++) {
+        const q2 = document.getElementById('sug2-q-' + idx)?.value.trim();
+        if (!q2) continue;
+        const a2 = document.getElementById('sug2-a-' + idx)?.value.trim();
+        const b2 = document.getElementById('sug2-b-' + idx)?.value.trim();
+        const c2 = document.getElementById('sug2-c-' + idx)?.value.trim();
+        const d2 = document.getElementById('sug2-d-' + idx)?.value.trim();
+        const sec2 = document.getElementById('sug2-section-' + idx)?.value;
+        if (q2 && a2 && b2 && c2 && d2) {
+            suggestionsCache.push({ id: uid(), section: sec2, question: q2, optionA: a2, optionB: b2, optionC: c2, optionD: d2, correct: '', status: 'pending', ts: Date.now() });
+        }
+    }
+    await commitSuggestions();
+    showToast('Submitted! Awaiting admin approval ✅', 'success');
+    document.getElementById('sug-question').value = '';
+    ['a', 'b', 'c', 'd'].forEach(x => document.getElementById('sug-' + x).value = '');
+    extraSuggestions = [];
+    document.getElementById('more-suggestions').innerHTML = '';
+    await refreshAllData();
+}
+
+// ========== ADMIN FUNCTIONS ==========
+function showAdminLogin() { if (isAdmin) { showPage('admin'); return; } document.getElementById('admin-modal').classList.add('open'); }
+function closeAdminModal() { document.getElementById('admin-modal').classList.remove('open'); }
+function doAdminLogin() {
+    const u = document.getElementById('admin-user').value, p = document.getElementById('admin-pass').value;
+    if (u === ADMIN_USER && p === ADMIN_PASS) { isAdmin = true; closeAdminModal(); showPage('admin'); }
+    else document.getElementById('login-error').style.display = 'block';
+}
+
+async function adminTab(tab) {
+    currentAdminTab = tab;
+    const tabs = ['pending', 'approved', 'rejected', 'add', 'essays', 'sections', 'history'];
+    document.querySelectorAll('#admin-tabs .tab').forEach((t, i) => t.classList.toggle('active', tabs[i] === tab));
+    await renderAdminTab(tab);
+}
+
+async function renderAdminTab(tab) {
+    await refreshAllData();
+    const el = document.getElementById('admin-tab-content');
+    if (!el) return;
+    if (tab === 'pending') el.innerHTML = renderSuggestionsTable('pending');
+    else if (tab === 'approved') el.innerHTML = renderMCQsTable();
+    else if (tab === 'rejected') el.innerHTML = renderSuggestionsTable('rejected');
+    else if (tab === 'add') el.innerHTML = renderAdminAddForm();
+    else if (tab === 'bulk') showBulkUploadUI();
+    else if (tab === 'pdfs') renderAdminPDFs();
+    else if (tab === 'essays') el.innerHTML = renderAdminEssays();
+    else if (tab === 'sections') el.innerHTML = renderAdminSections();
+    else if (tab === 'history') el.innerHTML = await renderAdminHistory();
+}
+
+function renderSuggestionsTable(status) {
+    const sugs = getSuggestions().filter(s => s.status === status);
+    if (!sugs.length) return `<div class="card" style="text-align:center">No ${status} suggestions.</div>`;
+    return `<div class="card"><div class="table-container"><table style="width:100%"><tr><th>Section</th><th>Question</th><th>Options</th><th>Actions</th></tr>${sugs.map(s => `<tr><td><span class="badge badge-blue">${getSections().find(x => x.id === s.section)?.name || s.section}</span></td><td style="max-width:200px">${s.question}</td><td style="font-size:.78rem">A: ${s.optionA}<br>B: ${s.optionB}<br>C: ${s.optionC}<br>D: ${s.optionD}</td><td>${status === 'pending' ? `<button class="btn btn-success btn-sm" onclick="approveSuggestion('${s.id}')">Approve</button> ` : ''}<button class="btn btn-warning btn-sm" onclick="openEditSuggestion('${s.id}')">Edit</button>${status === 'pending' ? `<button class="btn btn-danger btn-sm" onclick="rejectSuggestion('${s.id}')">Reject</button>` : `<button class="btn btn-danger btn-sm" onclick="deleteSuggestion('${s.id}')">Delete</button>`}</td></tr>`).join('')}</table></div></div>`;
+}
+
+function renderMCQsTable() {
+    const mcqs = getMCQs();
+    const sections = getSections();
+    
+    if (!mcqs.length) {
+        return `<div class="card" style="text-align:center;color:var(--text2)">📭 No approved MCQs yet. Add some from Pending tab or Add MCQ section.</div>`;
+    }
+    
+    // Group MCQs by section
+    const mcqsBySection = {};
+    sections.forEach(sec => {
+        mcqsBySection[sec.id] = {
+            name: sec.name,
+            icon: sec.icon,
+            mcqs: mcqs.filter(m => m.section === sec.id)
+        };
+    });
+    
+    let html = `<div class="card">
+        <h3 style="margin-bottom:16px">📚 Approved MCQs by Section</h3>
+        <div class="section-grid" id="approved-section-grid" style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:20px">`;
+    
+    // Show section buttons
+    sections.forEach(sec => {
+        const count = mcqs.filter(m => m.section === sec.id).length;
+        html += `
+            <div class="section-card" data-section="${sec.id}" onclick="filterApprovedBySection('${sec.id}')" style="cursor:pointer; min-width:120px; text-align:center">
+                <div class="s-icon">${sec.icon}</div>
+                <div class="s-name">${sec.name}</div>
+                <div style="font-size:0.7rem; color:var(--text3); margin-top:4px">${count} MCQs</div>
+            </div>
+        `;
+    });
+    
+    html += `</div>
+        <div id="approved-mcqs-container" style="margin-top:20px">
+            <div style="text-align:center; padding:20px; color:var(--text3)">👆 Click on any section above to view MCQs</div>
+        </div>
+    </div>`;
+    
+    return html;
+}
+//=======================================
+// Filter approved MCQs by section
+window.filterApprovedBySection = function(sectionId) {
+    const mcqs = getMCQs();
+    const sections = getSections();
+    const section = sections.find(s => s.id === sectionId);
+    const filteredMcqs = mcqs.filter(m => m.section === sectionId);
+    
+    const container = document.getElementById('approved-mcqs-container');
+    if (!container) return;
+    
+    if (!filteredMcqs.length) {
+        container.innerHTML = `<div class="card" style="text-align:center;color:var(--text2)">📭 No MCQs found in ${section?.name || sectionId} section.</div>`;
+        return;
+    }
+    
+    // Highlight active section
+    document.querySelectorAll('#approved-section-grid .section-card').forEach(card => {
+        card.style.background = 'var(--bg)';
+        card.style.border = '1px solid var(--border)';
+        if (card.dataset.section === sectionId) {
+            card.style.background = '#eff6ff';
+            card.style.border = '2px solid var(--primary)';
+        }
+    });
+    
+    let html = `<h4 style="margin-bottom:16px">📖 ${section?.icon || ''} ${section?.name || sectionId} — ${filteredMcqs.length} MCQs</h4>
+        <div class="table-container">
+            <table style="width:100%">
+                <thead>
+                    <tr style="background:var(--surface2)">
+                        <th style="padding:10px">#</th>
+                        <th style="padding:10px">Question</th>
+                        <th style="padding:10px">Correct</th>
+                        <th style="padding:10px">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+    
+    filteredMcqs.forEach((m, idx) => {
+        html += `
+            <tr>
+                <td style="padding:10px">${idx + 1}</td>
+                <td style="padding:10px; max-width:300px; word-break:break-word">${m.question}</td>
+                <td style="padding:10px"><span class="badge badge-green">${m.correct}</span></td>
+                <td style="padding:10px">
+                    <button class="btn btn-warning btn-sm" onclick="openEditMCQ('${m.id}')">✏️ Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteMCQ('${m.id}')">🗑 Delete</button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += `</tbody></table></div>`;
+    container.innerHTML = html;
+    container.scrollIntoView({ behavior: 'smooth' });
 };
-  // Replace the existing saveEdit function with this:
+//======================================================
+
+function renderAdminAddForm() {
+    adminExtras = [];
+    document.getElementById('add-more-container')?.remove();
+    return `<div class="card"><h3>Add New MCQ</h3><div class="form-group"><label>Section</label><select id="add-section">${getSections().map(s => `<option value="${s.id}">${s.name}</option>`).join('')}</select></div><div class="form-group"><label>Question</label><textarea id="add-question"></textarea></div><div class="form-row"><div class="form-group"><label>A</label><input id="add-a"></div><div class="form-group"><label>B</label><input id="add-b"></div></div><div class="form-row"><div class="form-group"><label>C</label><input id="add-c"></div><div class="form-group"><label>D</label><input id="add-d"></div></div><div class="form-group"><label>Correct</label><select id="add-correct"><option>A</option><option>B</option><option>C</option><option>D</option></select></div><button class="btn btn-success" onclick="adminAddMCQ()">✅ Add MCQ</button><div id="add-more-container"></div><button class="btn btn-outline btn-sm" onclick="adminAddMore()">+ Add Another</button></div>`;
+}
+
+function adminAddMore() {
+    const idx = adminExtras.length;
+    adminExtras.push({});
+    const container = document.getElementById('add-more-container');
+    if (!container) return;
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.style.marginTop = '12px';
+    div.id = `adm-extra-${idx}`;
+    div.innerHTML = `<div style="display:flex;justify-content:space-between"><strong>MCQ #${idx + 2}</strong><button class="btn btn-danger btn-sm" onclick="document.getElementById('adm-extra-${idx}').remove(); adminExtras.splice(${idx},1)">Remove</button></div><div class="form-group"><label>Section</label><select id="adme-sec-${idx}">${getSections().map(s => `<option value="${s.id}">${s.name}</option>`).join('')}</select></div><div class="form-group"><label>Q</label><textarea id="adme-q-${idx}"></textarea></div><div class="form-row"><div class="form-group"><label>A</label><input id="adme-a-${idx}"></div><div class="form-group"><label>B</label><input id="adme-b-${idx}"></div></div><div class="form-row"><div class="form-group"><label>C</label><input id="adme-c-${idx}"></div><div class="form-group"><label>D</label><input id="adme-d-${idx}"></div></div><div class="form-group"><label>Correct</label><select id="adme-cor-${idx}"><option>A</option><option>B</option><option>C</option><option>D</option></select></div>`;
+    container.appendChild(div);
+}
+
+async function adminAddMCQ() {
+    const q = document.getElementById('add-question')?.value.trim();
+    const a = document.getElementById('add-a')?.value.trim();
+    const b = document.getElementById('add-b')?.value.trim();
+    const c = document.getElementById('add-c')?.value.trim();
+    const d = document.getElementById('add-d')?.value.trim();
+    const sec = document.getElementById('add-section')?.value;
+    const cor = document.getElementById('add-correct')?.value;
+    if (!q || !a || !b || !c || !d) { showToast('Fill all fields', 'error'); return; }
+    mcqsCache.push({ id: uid(), section: sec, question: q, optionA: a, optionB: b, optionC: c, optionD: d, correct: cor });
+    // Save extra MCQs
+    for (let idx = 0; idx < adminExtras.length; idx++) {
+        const q2 = document.getElementById('adme-q-' + idx)?.value.trim();
+        if (!q2) continue;
+        const a2 = document.getElementById('adme-a-' + idx)?.value.trim();
+        const b2 = document.getElementById('adme-b-' + idx)?.value.trim();
+        const c2 = document.getElementById('adme-c-' + idx)?.value.trim();
+        const d2 = document.getElementById('adme-d-' + idx)?.value.trim();
+        const sec2 = document.getElementById('adme-sec-' + idx)?.value;
+        const cor2 = document.getElementById('adme-cor-' + idx)?.value;
+        if (q2 && a2 && b2 && c2 && d2) {
+            mcqsCache.push({ id: uid(), section: sec2, question: q2, optionA: a2, optionB: b2, optionC: c2, optionD: d2, correct: cor2 });
+        }
+    }
+    await commitMCQs();
+    adminExtras = [];
+    await refreshAllData();
+    renderAdminTab('add');
+    showToast('MCQs added successfully!', 'success');
+}
+
+function renderAdminEssays() {
+    const essays = getEssays();
+    return `<div class="card"><div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px"><h3>Manage Essays (${essays.length})</h3><button class="btn btn-primary btn-sm" onclick="openEssayModal()">+ Add Essay</button></div>${essays.length ? `<div class="table-container"><table style="width:100%"><tr><th>Type</th><th>Title</th><th>Actions</th></tr>${essays.map(e => `<tr><td><span class="badge ${e.type === 'Argumentative' ? 'badge-blue' : 'badge-gold'}">${e.type}</span></td><td>${e.title}</td><td><button class="btn btn-warning btn-sm" onclick="openEssayModal('${e.id}')">Edit</button> <button class="btn btn-danger btn-sm" onclick="deleteEssay('${e.id}')">Delete</button></td></tr>`).join('')}</table></div>` : '<p style="color:var(--text2)">No essays yet. Click "Add Essay" to create one.</p>'}</div>`;
+}
+
+function renderAdminSections() {
+    return `<div class="card"><h3>Manage Sections</h3>${getSections().map(s => `<div style="display:flex;gap:10px;padding:8px;background:var(--surface2);margin-bottom:8px;border-radius:12px"><span>${s.icon}</span><span style="flex:1">${s.name}</span><button class="btn btn-danger btn-sm" onclick="deleteSection('${s.id}')">Delete</button></div>`).join('')}<h3 style="margin-top:16px">Add Section</h3><div class="form-row"><div class="form-group"><label>Icon (emoji)</label><input id="new-sec-icon" placeholder="📚"></div><div class="form-group"><label>Name</label><input id="new-sec-name"></div></div><button class="btn btn-primary" onclick="addSection()">Add Section</button></div>`;
+}
+
+async function renderAdminHistory() {
+    const snap = await db.ref('portal_logs').once('value');
+    const data = snap.val() || {};
+    const users = Object.keys(data);
+    
+    let html = `<div class="card" style="margin-bottom:16px;">
+        <div style="background:var(--primary); color:white; padding:12px 16px; border-radius:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px">
+            <div><strong>📊 Total Visitors:</strong> ${users.length}</div>
+            <button class="btn btn-danger btn-sm" onclick="clearAllFirebaseHistory()" style="background:#dc2626">🗑 Clear All Logs</button>
+        </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;">`;
+    
+    for (const u of users) {
+        const logsData = await db.ref('portal_logs/' + u).once('value');
+        const userLogs = logsData.val() || {};
+        const logsArray = Object.entries(userLogs).map(([key, val]) => ({ id: key, ...val }));
+        const lastLog = logsArray[logsArray.length - 1];
+        
+        // Total session time calculate karo
+        let totalSessionTime = 0;
+        logsArray.forEach(log => {
+            if (log.task === "Opened Portal") {
+                const nextLogIndex = logsArray.findIndex(l => l.timestamp > log.timestamp);
+                if (nextLogIndex !== -1) {
+                    totalSessionTime += (logsArray[nextLogIndex].timestamp - log.timestamp);
+                }
+            }
+        });
+        
+        const totalHours = Math.floor(totalSessionTime / 3600000);
+        const totalMinutes = Math.floor((totalSessionTime % 3600000) / 60000);
+        const totalSeconds = Math.floor((totalSessionTime % 60000) / 1000);
+        const totalTimeStr = `${totalHours > 0 ? totalHours + 'h ' : ''}${totalMinutes > 0 ? totalMinutes + 'm ' : ''}${totalSeconds}s`;
+        
+        html += `
+            <div class="card user-box" style="cursor:pointer; border-left:4px solid var(--primary)" onclick="viewFirebaseUser('${u}')">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start">
+                    <div>
+                        <strong style="font-size:1rem">👤 ${u.replace(/_/g, '.')}</strong>
+                        <div style="font-size:11px; color:var(--text3); margin-top:4px">📅 Last: ${lastLog?.time || 'N/A'}</div>
+                        <div style="font-size:11px; color:var(--text3)">⏱ Total active: ${totalTimeStr}</div>
+                        <div style="margin-top:6px"><span class="badge badge-blue">📋 ${logsArray.length} activities</span></div>
+                    </div>
+                    <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteUserHistory('${u}')" style="background:#ef4444; padding:4px 10px">🗑 Delete</button>
+                </div>
+            </div>`;
+    }
+    
+    html += `</div><div id="user-detail-view" style="margin-top:20px"></div>`;
+    return html;
+}
+viewFirebaseUser = async function(userName) {
+    const snap = await db.ref('portal_logs/' + userName).once('value');
+    const data = snap.val() || {};
+    const logs = Object.entries(data).map(([key, val]) => ({ id: key, ...val })).reverse();
+    
+    const container = document.getElementById('user-detail-view');
+    if (!logs.length) { 
+        container.innerHTML = `<div class="card">📭 No records for this user</div>`; 
+        return; 
+    }
+    
+    // Session stats calculate
+    let totalSessionTime = 0;
+    let examCount = 0;
+    let totalMcqs = 0;
+    let totalCorrect = 0;
+    let examsList = [];
+    
+    logs.forEach((log, idx) => {
+        if (log.task === "Opened Portal") {
+            const nextLog = logs[idx + 1];
+            if (nextLog && nextLog.timestamp) {
+                totalSessionTime += (nextLog.timestamp - log.timestamp);
+            }
+        }
+        if (log.task === "Submitted Exam" && log.examDetails) {
+            examCount++;
+            totalMcqs += log.examDetails.totalMcqs || 0;
+            totalCorrect += log.examDetails.correct || 0;
+            examsList.push({
+                time: log.time,
+                examDetails: log.examDetails,
+                timestamp: log.timestamp
+            });
+        }
+    });
+    
+    const totalHours = Math.floor(totalSessionTime / 3600000);
+    const totalMinutes = Math.floor((totalSessionTime % 3600000) / 60000);
+    const totalSeconds = Math.floor((totalSessionTime % 60000) / 1000);
+    
+    let html = `
+        <div class="card" style="margin-top:20px; border-top:4px solid var(--primary)">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px; padding-bottom:12px; border-bottom:1px solid var(--border)">
+                <div>
+                    <h3 style="margin:0">📊 ${userName.replace(/_/g, '.')}</h3>
+                    <p style="margin:5px 0 0; font-size:12px; color:var(--text3)">Complete Activity History</p>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="document.getElementById('user-detail-view').innerHTML=''">✖ Close</button>
+            </div>
+            
+            <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:20px">
+                <div style="background:var(--surface2); padding:10px; border-radius:12px; text-align:center">
+                    <div style="font-size:20px">⏱</div>
+                    <div style="font-size:10px; color:var(--text3)">Total Active Time</div>
+                    <div style="font-size:14px; font-weight:700">${totalHours > 0 ? totalHours + 'h ' : ''}${totalMinutes > 0 ? totalMinutes + 'm ' : ''}${totalSeconds}s</div>
+                </div>
+                <div style="background:var(--surface2); padding:10px; border-radius:12px; text-align:center">
+                    <div style="font-size:20px">📝</div>
+                    <div style="font-size:10px; color:var(--text3)">Total Exams Taken</div>
+                    <div style="font-size:14px; font-weight:700">${examCount}</div>
+                </div>
+                <div id="total-mcqs-box" style="background:var(--surface2); padding:10px; border-radius:12px; text-align:center; cursor:pointer; transition:all 0.2s" onclick="showAllExamResults(${JSON.stringify(examsList).replace(/"/g, '&quot;')}, '${userName.replace(/_/g, '.')}')">
+                    <div style="font-size:20px">❓</div>
+                    <div style="font-size:10px; color:var(--text3)">Total MCQs Attempted</div>
+                    <div style="font-size:14px; font-weight:700">${totalMcqs}</div>
+                    <div style="font-size:10px; color:var(--primary); margin-top:4px">👇 Click to view all</div>
+                </div>
+                <div style="background:var(--surface2); padding:10px; border-radius:12px; text-align:center">
+                    <div style="font-size:20px">✅</div>
+                    <div style="font-size:10px; color:var(--text3)">Overall Accuracy</div>
+                    <div style="font-size:14px; font-weight:700; color:var(--success)">${totalMcqs > 0 ? Math.round((totalCorrect / totalMcqs) * 100) : 0}%</div>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table style="width:100%">
+                    <thead>
+                        <tr style="background:var(--surface2)">
+                            <th style="padding:10px">Time (PKT)</th>
+                            <th style="padding:10px">Activity</th>
+                            <th style="padding:10px">Duration</th>
+                            <th style="padding:10px">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+    
+    for (let i = 0; i < logs.length; i++) {
+        const log = logs[i];
+        let detailsHtml = '-';
+        
+        if (log.task === "Submitted Exam" && log.examDetails) {
+            const ed = log.examDetails;
+            detailsHtml = `<button class="btn btn-sm btn-outline" onclick="showExamResult(${JSON.stringify(ed).replace(/"/g, '&quot;')}, '${log.time}')">📊 View Result</button>`;
+        }
+        
+        // Portal closed detect
+        let durationDisplay = log.duration || '-';
+        if (log.task === "Opened Portal" && logs[i + 1]) {
+            const nextLog = logs[i + 1];
+            if (nextLog && nextLog.timestamp) {
+                const diffMs = nextLog.timestamp - log.timestamp;
+                const mins = Math.floor(diffMs / 60000);
+                const secs = Math.floor((diffMs % 60000) / 1000);
+                durationDisplay = `${mins > 0 ? mins + 'm ' : ''}${secs}s (until ${nextLog.task})`;
+            }
+        }
+        
+        html += `
+            <tr style="border-bottom:1px solid var(--border)">
+                <td style="padding:10px; font-size:11px; white-space:nowrap">${log.time}</td>
+                <td style="padding:10px"><span class="badge" style="background:${log.task === 'Opened Portal' ? '#dbeafe' : (log.task.includes('Exam') ? '#fef3c7' : '#eef2f6')}">${log.task}</span></td>
+                <td style="padding:10px; font-size:11px">${durationDisplay}</td>
+                <td style="padding:10px">${detailsHtml}</td>
+            </tr>
+        `;
+    }
+    
+    html += `</tbody></table></div></div>`;
+    container.innerHTML = html;
+    container.scrollIntoView({ behavior: 'smooth' });
+};
+//=======================+=========================
+window.deleteUserHistory = async function(userName) {
+    if (confirm(`Are you sure you want to delete ALL history for ${userName.replace(/_/g, '.')}? This cannot be undone!`)) {
+        await db.ref('portal_logs/' + userName).remove();
+        showToast(`History deleted for ${userName.replace(/_/g, '.')}!`, 'success');
+        await renderAdminTab('history');
+    }
+};
+
+// ========== CRUD OPERATIONS ==========
+async function approveSuggestion(id) {
+    const sug = suggestionsCache.find(s => s.id === id);
+    if (!sug) return;
+    if (!sug.correct) { showToast('Set correct answer first - use Edit', 'error'); return; }
+    sug.status = 'approved';
+    await commitSuggestions();
+    mcqsCache.push({ id: uid(), section: sug.section, question: sug.question, optionA: sug.optionA, optionB: sug.optionB, optionC: sug.optionC, optionD: sug.optionD, correct: sug.correct });
+    await commitMCQs();
+    await refreshAllData();
+    renderAdminTab('pending');
+    showToast('Approved & added to MCQs!', 'success');
+}
+
+async function rejectSuggestion(id) {
+    const sug = suggestionsCache.find(s => s.id === id);
+    if (sug) sug.status = 'rejected';
+    await commitSuggestions();
+    await refreshAllData();
+    renderAdminTab('pending');
+}
+
+async function deleteSuggestion(id) {
+    suggestionsCache = suggestionsCache.filter(s => s.id !== id);
+    await commitSuggestions();
+    await refreshAllData();
+    renderAdminTab(currentAdminTab);
+}
+
+async function deleteMCQ(id) {
+    mcqsCache = mcqsCache.filter(m => m.id !== id);
+    await commitMCQs();
+    await refreshAllData();
+    renderAdminTab('approved');
+}
+
+window.openEditMCQ = function(id) {
+    const m = mcqsCache.find(x => x.id === id);
+    if (!m) return;
+    document.getElementById('edit-id').value = id;
+    document.getElementById('edit-section').innerHTML = getSections().map(s => `<option ${s.id === m.section ? 'selected' : ''} value="${s.id}">${s.name}</option>`).join('');
+    document.getElementById('edit-question').value = m.question;
+    document.getElementById('edit-a').value = m.optionA;
+    document.getElementById('edit-b').value = m.optionB;
+    document.getElementById('edit-c').value = m.optionC;
+    document.getElementById('edit-d').value = m.optionD;
+    document.getElementById('edit-correct').value = m.correct;
+    document.getElementById('edit-modal').classList.add('open');
+};
+
+window.openEditSuggestion = function(id) {
+    const s = suggestionsCache.find(x => x.id === id);
+    if (!s) return;
+    document.getElementById('edit-id').value = 'sug:' + id;
+    document.getElementById('edit-section').innerHTML = getSections().map(sec => `<option value="${sec.id}" ${sec.id === s.section ? 'selected' : ''}>${sec.name}</option>`).join('');
+    document.getElementById('edit-question').value = s.question;
+    document.getElementById('edit-a').value = s.optionA;
+    document.getElementById('edit-b').value = s.optionB;
+    document.getElementById('edit-c').value = s.optionC;
+    document.getElementById('edit-d').value = s.optionD;
+    document.getElementById('edit-correct').value = s.correct || 'A';
+    document.getElementById('edit-modal').classList.add('open');
+};
+
+window.closeEditModal = function() { document.getElementById('edit-modal').classList.remove('open'); };
 
 window.saveEdit = async function() {
-  const rawId = document.getElementById('edit-id').value;
-  const sec = document.getElementById('edit-section').value;
-  const q = document.getElementById('edit-question').value.trim();
-  const a = document.getElementById('edit-a').value.trim();
-  const b = document.getElementById('edit-b').value.trim();
-  const c = document.getElementById('edit-c').value.trim();
-  const d = document.getElementById('edit-d').value.trim();
-  const cor = document.getElementById('edit-correct').value;
-  
-  if (!q || !a || !b || !c || !d) { 
-    showToast('Fill all fields', 'error'); 
-    return; 
-  }
-
-  // Check if editing a SUGGESTION (prefixed with 'sug:')
-  if (rawId.startsWith('sug:')) {
-    const id = rawId.slice(4);
-    const sug = suggestionsCache.find(x => x.id === id);
-    if (sug) {
-      sug.section = sec;
-      sug.question = q;
-      sug.optionA = a;
-      sug.optionB = b;
-      sug.optionC = c;
-      sug.optionD = d;
-      sug.correct = cor;
-      sug.status = 'approved';  // Auto-approve when edited
-      
-      // Save updated suggestion
-      await commitSuggestions();
-      
-      // Also add to approved MCQs
-      mcqsCache.push({ 
-        id: uid(), 
-        section: sec, 
-        question: q, 
-        optionA: a, 
-        optionB: b, 
-        optionC: c, 
-        optionD: d, 
-        correct: cor 
-      });
-      await commitMCQs();
-      
-      showToast('Edited & Approved!', 'success');
+    const rawId = document.getElementById('edit-id').value;
+    const sec = document.getElementById('edit-section').value;
+    const q = document.getElementById('edit-question').value.trim();
+    const a = document.getElementById('edit-a').value.trim();
+    const b = document.getElementById('edit-b').value.trim();
+    const c = document.getElementById('edit-c').value.trim();
+    const d = document.getElementById('edit-d').value.trim();
+    const cor = document.getElementById('edit-correct').value;
+    if (!q || !a || !b || !c || !d) { showToast('Fill all fields', 'error'); return; }
+    if (rawId.startsWith('sug:')) {
+        const id = rawId.slice(4);
+        const sug = suggestionsCache.find(x => x.id === id);
+        if (sug) {
+            sug.section = sec; sug.question = q; sug.optionA = a; sug.optionB = b; sug.optionC = c; sug.optionD = d; sug.correct = cor; sug.status = 'approved';
+            await commitSuggestions();
+            mcqsCache.push({ id: uid(), section: sec, question: q, optionA: a, optionB: b, optionC: c, optionD: d, correct: cor });
+            await commitMCQs();
+            showToast('Edited & Approved!', 'success');
+        }
+    } else {
+        const mcq = mcqsCache.find(x => x.id === rawId);
+        if (mcq) { mcq.section = sec; mcq.question = q; mcq.optionA = a; mcq.optionB = b; mcq.optionC = c; mcq.optionD = d; mcq.correct = cor; await commitMCQs(); showToast('MCQ updated!', 'success'); }
     }
-  } 
-  // Otherwise editing an existing APPROVED MCQ
-  else {
-    const mcq = mcqsCache.find(x => x.id === rawId);
-    if (mcq) {
-      mcq.section = sec;
-      mcq.question = q;
-      mcq.optionA = a;
-      mcq.optionB = b;
-      mcq.optionC = c;
-      mcq.optionD = d;
-      mcq.correct = cor;
-      await commitMCQs();
-      showToast('MCQ updated!', 'success');
-    }
-  }
-  
-  // Refresh all data and UI
-  await refreshAllData();
-  closeEditModal();
-  renderAdminTab(currentAdminTab);
+    await refreshAllData();
+    closeEditModal();
+    renderAdminTab(currentAdminTab);
 };
-  window.closeEditModal = ()=>document.getElementById('edit-modal').classList.remove('open');
-  window.openEssayModal = (id)=>{ document.getElementById('essay-edit-id').value=id||''; if(id){ const e=essaysCache.find(x=>x.id===id); if(e){ document.getElementById('essay-type').value=e.type; document.getElementById('essay-title').value=e.title; document.getElementById('essay-content').value=e.content; } } else { document.getElementById('essay-title').value=''; document.getElementById('essay-content').value=''; } document.getElementById('essay-modal').classList.add('open'); };
-  window.saveEssay = async ()=>{ const id=document.getElementById('essay-edit-id').value, type=document.getElementById('essay-type').value, title=document.getElementById('essay-title').value.trim(), content=document.getElementById('essay-content').value.trim(); if(!title){ showToast('Title required','error'); return; } if(id){ const idx=essaysCache.findIndex(e=>e.id===id); if(idx!==-1) essaysCache[idx]={id,type,title,content}; }else essaysCache.push({id:uid(),type,title,content}); await commitEssays(); await refreshAllData(); closeEssayModal(); renderAdminTab('essays'); showToast('Essay saved','success'); };
-  window.deleteEssay = async (id)=>{ essaysCache=essaysCache.filter(e=>e.id!==id); await commitEssays(); await refreshAllData(); renderAdminTab('essays'); };
-  window.addSection = async ()=>{ const icon=document.getElementById('new-sec-icon').value.trim()||'📌', name=document.getElementById('new-sec-name').value.trim(); if(!name){ showToast('Enter name','error'); return; } const id=name.toLowerCase().replace(/\s+/g,'_'); sectionsCache.push({id,name,icon}); await commitSections(); await refreshAllData(); renderAdminTab('sections'); };
-  window.deleteSection = async (id)=>{ sectionsCache = sectionsCache.filter(s=>s.id!==id); await commitSections(); await refreshAllData(); renderAdminTab('sections'); };
-  window.adminAddMore = ()=>{ const idx=adminExtras.length; adminExtras.push({}); const div=document.createElement('div'); div.className='card'; div.id=`adm-extra-${idx}`; div.innerHTML=`<div><strong>MCQ #${idx+2}</strong><button class="btn btn-danger btn-sm" onclick="document.getElementById('adm-extra-${idx}').remove()">Remove</button></div><div class="form-group"><label>Section</label><select id="adme-sec-${idx}">${getSections().map(s=>`<option value="${s.id}">${s.name}</option>`).join('')}</select></div><div class="form-group"><label>Q</label><textarea id="adme-q-${idx}"></textarea></div><div class="form-row"><div class="form-group"><label>A</label><input id="adme-a-${idx}"></div><div class="form-group"><label>B</label><input id="adme-b-${idx}"></div></div><div class="form-row"><div class="form-group"><label>C</label><input id="adme-c-${idx}"></div><div class="form-group"><label>D</label><input id="adme-d-${idx}"></div></div><div class="form-group"><label>Correct</label><select id="adme-cor-${idx}"><option>A</option><option>B</option><option>C</option><option>D</option></select></div>`; document.getElementById('add-more-container').appendChild(div); };
-  
-  (async function init() { await refreshAllData(); renderExamSetup(); })();
+
+// ========== ESSAY MODAL FUNCTIONS ==========
+window.openEssayModal = function(id) {
+    const modalTitle = document.getElementById('essay-modal-title');
+    const editIdField = document.getElementById('essay-edit-id');
+    const typeField = document.getElementById('essay-type');
+    const titleField = document.getElementById('essay-title');
+    const contentField = document.getElementById('essay-content');
+    if (id) {
+        const essay = essaysCache.find(e => e.id === id);
+        if (essay) {
+            modalTitle.textContent = '✏️ Edit Essay';
+            editIdField.value = id;
+            typeField.value = essay.type;
+            titleField.value = essay.title;
+            contentField.value = essay.content;
+        }
+    } else {
+        modalTitle.textContent = '➕ Add New Essay';
+        editIdField.value = '';
+        typeField.value = 'Argumentative';
+        titleField.value = '';
+        contentField.value = '';
+    }
+    document.getElementById('essay-modal').classList.add('open');
+};
+
+window.closeEssayModal = function() { document.getElementById('essay-modal').classList.remove('open'); };
+
+window.saveEssay = async function() {
+    const id = document.getElementById('essay-edit-id').value;
+    const type = document.getElementById('essay-type').value;
+    const title = document.getElementById('essay-title').value.trim();
+    const content = document.getElementById('essay-content').value.trim();
+    if (!title) { showToast('Please enter essay title', 'error'); return; }
+    try {
+        await refreshAllData();
+        if (id) {
+            const index = essaysCache.findIndex(e => e.id === id);
+            if (index !== -1) essaysCache[index] = { id, type, title, content };
+        } else {
+            essaysCache.push({ id: uid(), type, title, content });
+        }
+        await commitEssays();
+        await refreshAllData();
+        closeEssayModal();
+        if (document.getElementById('page-essays').classList.contains('active')) {
+            const activeTab = document.querySelector('#page-essays .tab.active');
+            const tabText = activeTab?.innerText || 'Argumentative';
+            renderEssays(tabText.includes('Argumentative') ? 'Argumentative' : 'Narrative');
+        }
+        if (isAdmin && document.getElementById('page-admin').classList.contains('active')) {
+            await renderAdminTab('essays');
+        }
+        showToast(id ? 'Essay updated!' : 'Essay added!', 'success');
+    } catch (error) { showToast('Error saving essay!', 'error'); }
+};
+
+window.deleteEssay = async function(id) {
+    if (!confirm('Delete this essay?')) return;
+    essaysCache = essaysCache.filter(e => e.id !== id);
+    await commitEssays();
+    await refreshAllData();
+    showToast('Essay deleted!', 'success');
+    if (isAdmin && document.getElementById('page-admin')?.classList.contains('active')) await renderAdminTab('essays');
+    if (document.getElementById('page-essays')?.classList.contains('active')) {
+        const activeTab = document.querySelector('#page-essays .tab.active');
+        renderEssays(activeTab?.innerText.includes('Argumentative') ? 'Argumentative' : 'Narrative');
+    }
+};
+
+// ========== SECTION FUNCTIONS ==========
+window.addSection = async function() {
+    const icon = document.getElementById('new-sec-icon').value.trim() || '📌';
+    const name = document.getElementById('new-sec-name').value.trim();
+    if (!name) { showToast('Enter section name', 'error'); return; }
+    const id = name.toLowerCase().replace(/\s+/g, '_');
+    sectionsCache.push({ id, name, icon });
+    await commitSections();
+    await refreshAllData();
+    renderAdminTab('sections');
+    showToast('Section added!', 'success');
+};
+
+window.deleteSection = async function(id) {
+    if (confirm('Delete this section? All MCQs in this section will remain but section will be removed.')) {
+        sectionsCache = sectionsCache.filter(s => s.id !== id);
+        await commitSections();
+        await refreshAllData();
+        renderAdminTab('sections');
+        showToast('Section deleted', 'success');
+    }
+};
+
+// ========== INSERT TAG FOR TOOLBAR ==========
+window.insertTag = (id, open, close = '') => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const start = el.selectionStart, end = el.selectionEnd, text = el.value;
+    el.value = text.substring(0, start) + open + text.substring(start, end) + close + text.substring(end);
+    el.focus();
+};
+
+// ========== INITIALIZATION ==========
+(async function init() {
+    await refreshAllData();
+    renderExamSetup();
+})();
+// Function to show single exam result
+window.showExamResult = function(examDetails, examTime) {
+    const ed = examDetails;
+    let questionsHtml = `
+        <div class="modal-overlay open" id="exam-result-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; z-index:2000">
+            <div class="modal" style="max-width:700px; width:90%; max-height:85vh; overflow-y:auto">
+                <h3 style="margin-bottom:10px">📊 Exam Result - ${examTime}</h3>
+                <div style="background:var(--surface2); padding:12px; border-radius:12px; margin-bottom:16px; display:flex; justify-content:space-around; flex-wrap:wrap">
+                    <div style="text-align:center"><strong>Total MCQs</strong><br><span style="font-size:20px; font-weight:700">${ed.totalMcqs}</span></div>
+                    <div style="text-align:center"><strong style="color:var(--success)">Correct</strong><br><span style="font-size:20px; font-weight:700; color:var(--success)">${ed.correct}</span></div>
+                    <div style="text-align:center"><strong style="color:var(--danger)">Wrong</strong><br><span style="font-size:20px; font-weight:700; color:var(--danger)">${ed.wrong || (ed.totalMcqs - ed.correct)}</span></div>
+                    <div style="text-align:center"><strong>Score</strong><br><span style="font-size:20px; font-weight:700">${ed.percentage}%</span></div>
+                </div>
+                <div style="max-height:400px; overflow-y:auto">
+                    <table style="width:100%; font-size:12px; border-collapse:collapse">
+                        <thead>
+                            <tr style="background:var(--surface2); position:sticky; top:0">
+                                <th style="padding:8px">#</th>
+                                <th style="padding:8px">Question</th>
+                                <th style="padding:8px">Your Answer</th>
+                                <th style="padding:8px">Correct</th>
+                                <th style="padding:8px">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+    
+    if (ed.questions && ed.questions.length > 0) {
+        ed.questions.forEach((q, idx) => {
+            const isCorrect = q.userAnswer === q.correctAnswer;
+            questionsHtml += `
+                <tr style="border-bottom:1px solid var(--border)">
+                    <td style="padding:8px">${idx + 1}</td>
+                    <td style="padding:8px; word-break:break-word; max-width:250px">${q.questionText}</td>
+                    <td style="padding:8px; ${!isCorrect ? 'color:var(--danger); font-weight:bold' : ''}">${q.userAnswer || 'Not answered'}</td>
+                    <td style="padding:8px; color:var(--success); font-weight:bold">${q.correctAnswer}</td>
+                    <td style="padding:8px; font-size:18px">${isCorrect ? '✅' : '❌'}</td>
+                </tr>
+            `;
+        });
+    } else {
+        questionsHtml += `<tr><td colspan="5" style="padding:20px; text-align:center">No question details available</td></tr>`;
+    }
+    
+    questionsHtml += `
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer" style="margin-top:16px">
+                    <button class="btn btn-primary" onclick="closeExamResultModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('exam-result-modal');
+    if (existingModal) existingModal.remove();
+    
+    document.body.insertAdjacentHTML('beforeend', questionsHtml);
+};
+
+// Function to show all exams results (when clicking Total MCQs box)
+window.showAllExamResults = function(examsList, userName) {
+    let allQuestionsHtml = `
+        <div class="modal-overlay open" id="exam-result-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:flex; align-items:center; justify-content:center; z-index:2000">
+            <div class="modal" style="max-width:800px; width:90%; max-height:85vh; overflow-y:auto">
+                <h3 style="margin-bottom:10px">📊 All Exam Results - ${userName}</h3>
+                <div style="margin-bottom:16px; color:var(--text3); font-size:12px">Total Exams: ${examsList.length} | Total MCQs: ${examsList.reduce((sum, e) => sum + (e.examDetails.totalMcqs || 0), 0)}</div>
+                <div style="max-height:500px; overflow-y:auto">`;
+    
+    examsList.forEach((exam, examIdx) => {
+        const ed = exam.examDetails;
+        allQuestionsHtml += `
+            <div class="card" style="margin-bottom:16px; padding:12px">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border)">
+                    <div><strong>📝 Exam #${examIdx + 1}</strong> - ${exam.time}</div>
+                    <div><span class="badge badge-green">${ed.correct}/${ed.totalMcqs} (${ed.percentage}%)</span></div>
+                </div>
+                <table style="width:100%; font-size:11px; border-collapse:collapse">
+                    <thead>
+                        <tr style="background:var(--surface2)">
+                            <th style="padding:6px">#</th>
+                            <th style="padding:6px">Question</th>
+                            <th style="padding:6px">Your Answer</th>
+                            <th style="padding:6px">Correct</th>
+                            <th style="padding:6px">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+        
+        if (ed.questions && ed.questions.length > 0) {
+            ed.questions.forEach((q, idx) => {
+                const isCorrect = q.userAnswer === q.correctAnswer;
+                allQuestionsHtml += `
+                    <tr style="border-bottom:1px solid var(--border)">
+                        <td style="padding:5px">${idx + 1}</td>
+                        <td style="padding:5px; word-break:break-word; max-width:200px">${q.questionText.substring(0, 60)}${q.questionText.length > 60 ? '...' : ''}</td>
+                        <td style="padding:5px; ${!isCorrect ? 'color:var(--danger); font-weight:bold' : ''}">${q.userAnswer || 'Not answered'}</td>
+                        <td style="padding:5px; color:var(--success); font-weight:bold">${q.correctAnswer}</td>
+                        <td style="padding:5px; font-size:16px">${isCorrect ? '✅' : '❌'}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            allQuestionsHtml += `<tr><td colspan="5" style="padding:10px; text-align:center">No details available</td></tr>`;
+        }
+        
+        allQuestionsHtml += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+    });
+    
+    allQuestionsHtml += `
+                </div>
+                <div class="modal-footer" style="margin-top:16px">
+                    <button class="btn btn-primary" onclick="closeExamResultModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    const existingModal = document.getElementById('exam-result-modal');
+    if (existingModal) existingModal.remove();
+    
+    document.body.insertAdjacentHTML('beforeend', allQuestionsHtml);
+};
+
+// Function to close modal
+window.closeExamResultModal = function() {
+    const modal = document.getElementById('exam-result-modal');
+    if (modal) modal.remove();
+};
+// ========== USER DASHBOARD (4) ==========
+async function loadUserDashboard() {
+    if (!currentUser) return;
+    
+    const safeKey = currentUser.replace(/\./g, '_');
+    const snap = await db.ref('portal_logs/' + safeKey).once('value');
+    const data = snap.val() || {};
+    const logs = Object.values(data);
+    
+    let totalExams = 0;
+    let totalMcqs = 0;
+    let totalCorrect = 0;
+    let sectionStats = {};
+    
+    logs.forEach(log => {
+        if (log.task === "Submitted Exam" && log.examDetails) {
+            totalExams++;
+            totalMcqs += log.examDetails.totalMcqs || 0;
+            totalCorrect += log.examDetails.correct || 0;
+            
+            if (log.examDetails.sections) {
+                for (const [sid, secData] of Object.entries(log.examDetails.sections)) {
+                    if (!sectionStats[sid]) {
+                        sectionStats[sid] = { total: 0, correct: 0, name: secData.name };
+                    }
+                    sectionStats[sid].total += secData.total;
+                    sectionStats[sid].correct += secData.correct;
+                }
+            }
+        }
+    });
+    
+    const accuracy = totalMcqs > 0 ? Math.round((totalCorrect / totalMcqs) * 100) : 0;
+    
+    // Find weak and strong sections
+    let weakSections = [];
+    let strongSections = [];
+    for (const [sid, stat] of Object.entries(sectionStats)) {
+        const sectionAccuracy = stat.total > 0 ? Math.round((stat.correct / stat.total) * 100) : 0;
+        if (sectionAccuracy < 50 && stat.total >= 2) {
+            weakSections.push({ ...stat, accuracy: sectionAccuracy });
+        } else if (sectionAccuracy >= 70 && stat.total >= 2) {
+            strongSections.push({ ...stat, accuracy: sectionAccuracy });
+        }
+    }
+    
+    weakSections.sort((a, b) => a.accuracy - b.accuracy);
+    strongSections.sort((a, b) => b.accuracy - a.accuracy);
+    
+    const html = `
+        <div class="dashboard-stats">
+            <div class="dashboard-card"><div class="value">${totalExams}</div><div class="label">Total Exams</div></div>
+            <div class="dashboard-card"><div class="value">${totalMcqs}</div><div class="label">MCQs Attempted</div></div>
+            <div class="dashboard-card"><div class="value">${totalCorrect}</div><div class="label">Correct Answers</div></div>
+            <div class="dashboard-card"><div class="value">${accuracy}%</div><div class="label">Overall Accuracy</div></div>
+        </div>
+        <div class="chart-container"><canvas id="dashboard-chart"></canvas></div>
+        <div class="card"><h4>📊 Performance by Section</h4>${generateSectionPerformanceHTML(sectionStats)}</div>
+        <div class="row" style="display:flex; gap:16px; flex-wrap:wrap; margin-top:16px">
+            <div class="card" style="flex:1"><h4>⚠️ Weak Areas (Need Improvement)</h4>${weakSections.length ? weakSections.map(s => `<div class="weak-section">📌 ${s.name}: ${s.accuracy}% (${s.correct}/${s.total})</div>`).join('') : '<p class="text-muted">✨ Great! No weak areas detected.</p>'}</div>
+            <div class="card" style="flex:1"><h4>✅ Strong Areas</h4>${strongSections.length ? strongSections.map(s => `<div class="strong-section">🏆 ${s.name}: ${s.accuracy}% (${s.correct}/${s.total})</div>`).join('') : '<p class="text-muted">Complete more exams to see your strengths!</p>'}</div>
+        </div>
+    `;
+    
+    document.getElementById('dashboard-content').innerHTML = html;
+    
+    // Draw chart
+    const ctx = document.getElementById('dashboard-chart');
+    if (ctx) {
+        const sections = getSections();
+        const labels = [];
+        const data = [];
+        for (const [sid, stat] of Object.entries(sectionStats)) {
+            const sec = sections.find(s => s.id === sid);
+            labels.push(sec?.name || sid);
+            data.push(stat.total > 0 ? Math.round((stat.correct / stat.total) * 100) : 0);
+        }
+        new Chart(ctx, {
+            type: 'bar',
+            data: { labels: labels, datasets: [{ label: 'Accuracy %', data: data, backgroundColor: '#3b82f6', borderRadius: 8 }] },
+            options: { responsive: true, maintainAspectRatio: true, scales: { y: { max: 100, beginAtZero: true, title: { display: true, text: 'Accuracy (%)' } } } }
+        });
+    }
+}
+
+function generateSectionPerformanceHTML(sectionStats) {
+    const sections = getSections();
+    let html = '<div style="margin-top:12px">';
+    for (const [sid, stat] of Object.entries(sectionStats)) {
+        const sec = sections.find(s => s.id === sid);
+        const pct = stat.total > 0 ? Math.round((stat.correct / stat.total) * 100) : 0;
+        html += `<div style="margin-bottom:12px"><div style="display:flex; justify-content:space-between"><span>${sec?.icon || ''} ${sec?.name || sid}</span><span>${stat.correct}/${stat.total} (${pct}%)</span></div><div class="result-bar"><div class="result-fill" style="width:${pct}%; background:${pct >= 70 ? '#10b981' : (pct >= 40 ? '#f59e0b' : '#ef4444')}"></div></div></div>`;
+    }
+    return html + '</div>';
+}
+
+// PDF Export (5)
+window.exportDashboardToPDF = function() {
+    const element = document.getElementById('dashboard-content');
+    if (!element) { showToast('No data to export!', 'error'); return; }
+    
+    // Get HTML content
+    const htmlContent = element.innerHTML;
+    const originalTitle = document.title;
+    document.title = `${currentUser || 'User'}_Dashboard`;
+    
+    // Create print window
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>${currentUser || 'User'} Dashboard</title>
+                <style>
+                    body { font-family: Arial, sans-serif; padding: 20px; }
+                    .dashboard-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 15px; margin-bottom: 20px; }
+                    .dashboard-card { border: 1px solid #ccc; padding: 15px; text-align: center; border-radius: 10px; }
+                    .value { font-size: 24px; font-weight: bold; color: #3b82f6; }
+                    .label { font-size: 12px; color: #666; }
+                    .result-bar { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; margin: 8px 0; }
+                    .result-fill { height: 8px; background: #3b82f6; width: 0%; }
+                    .card { border: 1px solid #ccc; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+                    .weak-section { background: #fee2e2; border-left: 3px solid #ef4444; padding: 8px; margin: 5px 0; }
+                    .strong-section { background: #dcfce7; border-left: 3px solid #10b981; padding: 8px; margin: 5px 0; }
+                    @media print {
+                        body { margin: 0; padding: 10px; }
+                        .btn, .modal-footer { display: none; }
+                    }
+                </style>
+            </head>
+            <body>
+                ${htmlContent}
+                <p style="text-align:center; margin-top:30px; font-size:12px; color:#999;">Generated on: ${new Date().toLocaleString()}</p>
+            </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+    document.title = originalTitle;
+    showToast('Print window opened. Save as PDF using Ctrl+P / Cmd+P', 'success');
+};
+
+// Bulk Upload MCQs (6)
+function showBulkUploadUI() {
+    const adminTab = document.getElementById('admin-tab-content');
+    if (!adminTab) return;
+    adminTab.innerHTML = `
+        <div class="card">
+            <h3>📤 Bulk Upload MCQs (CSV Format)</h3>
+            <p style="font-size:0.75rem; color:var(--text3); margin-bottom:16px">CSV columns: section,question,optionA,optionB,optionC,optionD,correct</p>
+            <div class="bulk-upload-area" id="bulk-drop-zone" onclick="document.getElementById('bulk-file-input').click()">
+                <div>📁 Click or Drag & Drop CSV File Here</div>
+                <div style="font-size:0.7rem; margin-top:8px">Supported: .csv, .xlsx</div>
+            </div>
+            <input type="file" id="bulk-file-input" accept=".csv,.xlsx" style="display:none" onchange="handleBulkUploadFile(this)">
+            <div id="bulk-preview" class="csv-preview" style="display:none"></div>
+            <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap">
+                <button class="btn btn-outline btn-sm" onclick="downloadCSVTemplate()">📥 Download Template CSV</button>
+                <button id="confirm-upload-btn" class="btn btn-primary btn-sm" style="display:none" onclick="confirmBulkUpload()">✅ Confirm Upload</button>
+            </div>
+        </div>
+    `;
+    setupDragAndDrop();
+}
+
+let bulkMcqsData = [];
+function setupDragAndDrop() {
+    const dropZone = document.getElementById('bulk-drop-zone');
+    if (!dropZone) return;
+    dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); };
+    dropZone.ondragleave = () => dropZone.classList.remove('drag-over');
+    dropZone.ondrop = (e) => { e.preventDefault(); dropZone.classList.remove('drag-over'); const file = e.dataTransfer.files[0]; if (file) processBulkFile(file); };
+}
+window.downloadCSVTemplate = function() {
+    try {
+        const headers = ['section', 'question', 'optionA', 'optionB', 'optionC', 'optionD', 'correct'];
+        const example = ['physics', 'What is the unit of force?', 'Joule', 'Newton', 'Watt', 'Pascal', 'B'];
+        
+        let csvContent = '';
+        csvContent += headers.join(',') + '\n';
+        csvContent += example.join(',');
+        
+        // Create blob
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        
+        // Create file object
+        const file = new File([blob], 'mcq_template.csv', { type: 'text/csv' });
+        
+        // Check if showSaveFilePicker is supported (modern browsers)
+        if ('showSaveFilePicker' in window) {
+            // Modern method - shows "Save As" dialog
+            const savePicker = async () => {
+                try {
+                    const handle = await window.showSaveFilePicker({
+                        suggestedName: 'mcq_template.csv',
+                        types: [{
+                            description: 'CSV File',
+                            accept: { 'text/csv': ['.csv'] }
+                        }]
+                    });
+                    const writable = await handle.createWritable();
+                    await writable.write(blob);
+                    await writable.close();
+                    showToast('✅ Template saved to your selected location!', 'success');
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        console.error('Save error:', err);
+                        showToast('❌ Save cancelled or failed', 'error');
+                    }
+                }
+            };
+            savePicker();
+        } else {
+            // Fallback for older browsers - shows default download location
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.download = 'mcq_template.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast('✅ Template downloaded to default folder!', 'success');
+        }
+        
+    } catch(e) {
+        console.error('Download error:', e);
+        showToast('❌ Download failed: ' + e.message, 'error');
+    }
+};
+async function handleBulkUploadFile(input) { if (input.files && input.files[0]) processBulkFile(input.files[0]); }
+function processBulkFile(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        const rows = text.split('\n').filter(r => r.trim());
+        if (rows.length < 2) { showToast('CSV must have header + data rows', 'error'); return; }
+        const headers = rows[0].split(',').map(h => h.trim().toLowerCase());
+        const required = ['section', 'question', 'optiona', 'optionb', 'optionc', 'optiond', 'correct'];
+        const missing = required.filter(r => !headers.includes(r));
+        if (missing.length) { showToast(`Missing columns: ${missing.join(', ')}`, 'error'); return; }
+        bulkMcqsData = [];
+        const sectionIndex = headers.indexOf('section');
+        const qIndex = headers.indexOf('question');
+        const aIndex = headers.indexOf('optiona');
+        const bIndex = headers.indexOf('optionb');
+        const cIndex = headers.indexOf('optionc');
+        const dIndex = headers.indexOf('optiond');
+        const corIndex = headers.indexOf('correct');
+        const sections = getSections();
+        for (let i = 1; i < rows.length; i++) {
+            const cols = rows[i].split(',').map(c => c.trim());
+            if (cols.length < 7) continue;
+            const sectionId = cols[sectionIndex];
+            const existingSection = sections.find(s => s.id === sectionId || s.name.toLowerCase() === sectionId.toLowerCase());
+            if (!existingSection) { showToast(`Section "${sectionId}" not found!`, 'error'); return; }
+            bulkMcqsData.push({
+                id: uid(), section: existingSection.id, question: cols[qIndex],
+                optionA: cols[aIndex], optionB: cols[bIndex], optionC: cols[cIndex], optionD: cols[dIndex], correct: cols[corIndex].toUpperCase()
+            });
+        }
+        if (bulkMcqsData.length) {
+            document.getElementById('bulk-preview').innerHTML = `<div><strong>📊 Preview (${bulkMcqsData.length} MCQs):</strong><br>${bulkMcqsData.slice(0, 5).map(m => `📌 ${m.question.substring(0, 50)}... → ${m.correct}`).join('<br>')}${bulkMcqsData.length > 5 ? '<br>... and more' : ''}</div>`;
+            document.getElementById('bulk-preview').style.display = 'block';
+            document.getElementById('confirm-upload-btn').style.display = 'inline-block';
+        }
+    };
+    reader.readAsText(file);
+}
+async function confirmBulkUpload() {
+    if (!bulkMcqsData.length) { showToast('No data to upload', 'error'); return; }
+    const mcqs = getMCQs();
+    mcqs.push(...bulkMcqsData);
+    await commitMCQs();
+    await refreshAllData();
+    showToast(`${bulkMcqsData.length} MCQs uploaded successfully!`, 'success');
+    bulkMcqsData = [];
+    document.getElementById('bulk-preview').style.display = 'none';
+    document.getElementById('confirm-upload-btn').style.display = 'none';
+    renderAdminTab('approved');
+}
+
+// Dashboard button in nav - add to existing showPage function
+// Also update renderAdminTab to add Bulk Upload tab
+
+// ========== PDF FILES MANAGEMENT SYSTEM ==========
+
+// PDF Database reference
+let pdfFilesCache = [];
+
+// Load PDFs from Firebase
+async function loadPDFsFromFirebase() {
+    const snap = await db.ref('pdf_files').once('value');
+    pdfFilesCache = snap.val() || [];
+    return pdfFilesCache;
+}
+
+async function savePDFsToFirebase() {
+    await db.ref('pdf_files').set(pdfFilesCache);
+}
+
+// Render PDFs for Users
+async function renderPDFsForUser() {
+    await loadPDFsFromFirebase();
+    const visibleFiles = pdfFilesCache.filter(f => f.hidden !== true);
+    const container = document.getElementById('pdf-list-container');
+    
+    if (!visibleFiles.length) {
+        container.innerHTML = `<div class="card" style="text-align:center">📭 No PDF files available yet. Check back later!</div>`;
+        return;
+    }
+    
+    let html = `<div class="pdf-grid">`;
+    visibleFiles.forEach((file, idx) => {
+        html += `
+            <div class="pdf-card">
+                <div class="pdf-icon">📄</div>
+                <div class="pdf-title">${escapeHtml(file.title || 'Untitled')}</div>
+                <div class="pdf-meta">📅 ${file.date || ''} | 📁 ${file.size || 'Unknown'} KB</div>
+                <div class="pdf-actions">
+                    <button class="btn btn-primary btn-sm" onclick="downloadPDFFile(${idx})">📥 Download</button>
+                    <button class="btn btn-outline btn-sm" onclick="viewPDFFile(${idx})">👁 Preview</button>
+                </div>
+            </div>
+        `;
+    });
+    html += `</div>`;
+    container.innerHTML = html;
+}
+
+// Render PDFs for Admin
+async function renderAdminPDFs() {
+    await loadPDFsFromFirebase();
+    const container = document.getElementById('admin-tab-content');
+    
+    let html = `
+        <div class="card">
+            <h3>📁 PDF Files Manager</h3>
+            <p style="font-size:0.75rem; color:var(--text3); margin-bottom:16px">Upload PDF files for students to download</p>
+            
+            <div class="upload-area" id="pdf-upload-zone" onclick="document.getElementById('pdf-file-input').click()">
+                <div>📁 Click or Drag & Drop PDF Files Here</div>
+                <div style="font-size:0.7rem; margin-top:8px">Supported: .pdf (Multiple files allowed)</div>
+            </div>
+            <input type="file" id="pdf-file-input" accept=".pdf" multiple style="display:none" onchange="handlePDFUpload(this)">
+            
+            <div id="upload-preview" style="margin-top:16px; display:none"></div>
+            
+            <div style="margin-top:20px">
+                <h4>📚 Uploaded PDFs (${pdfFilesCache.length})</h4>
+                <div class="pdf-grid" id="admin-pdf-list">
+                    ${pdfFilesCache.length ? renderPDFAdminList() : '<p style="text-align:center; padding:20px">No PDFs uploaded yet.</p>'}
+                </div>
+            </div>
+        </div>
+    `;
+    container.innerHTML = html;
+    setupPDFDragAndDrop();
+}
+
+function renderPDFAdminList() {
+    let html = '';
+    pdfFilesCache.forEach((file, idx) => {
+        const hiddenBadge = file.hidden ? '<span class="badge-hidden">Hidden</span>' : '';
+        html += `
+            <div class="pdf-card ${file.hidden ? 'hidden-file' : ''}">
+                <div class="pdf-icon">📄</div>
+                <div class="pdf-title">${escapeHtml(file.title || 'Untitled')} ${hiddenBadge}</div>
+                <div class="pdf-meta">📅 ${file.date || ''} | 📁 ${file.size || 'Unknown'} KB</div>
+                <div class="pdf-actions">
+                    <button class="btn btn-warning btn-sm" onclick="editPDFFile(${idx})">✏️ Edit</button>
+                    <button class="btn btn-outline btn-sm" onclick="toggleHidePDF(${idx})">${file.hidden ? '👁 Show' : '🙈 Hide'}</button>
+                    <button class="btn btn-danger btn-sm" onclick="deletePDFFile(${idx})">🗑 Delete</button>
+                </div>
+            </div>
+        `;
+    });
+    return html;
+}
+
+function setupPDFDragAndDrop() {
+    const dropZone = document.getElementById('pdf-upload-zone');
+    if (!dropZone) return;
+    dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); };
+    dropZone.ondragleave = () => dropZone.classList.remove('drag-over');
+    dropZone.ondrop = (e) => { 
+        e.preventDefault(); 
+        dropZone.classList.remove('drag-over'); 
+        if (e.dataTransfer.files.length) handlePDFFiles(e.dataTransfer.files);
+    };
+}
+
+async function handlePDFUpload(input) {
+    if (input.files && input.files.length) {
+        await handlePDFFiles(input.files);
+        input.value = '';
+    }
+}
+
+async function handlePDFFiles(files) {
+    const validFiles = Array.from(files).filter(f => f.type === 'application/pdf');
+    if (validFiles.length === 0) {
+        showToast('Please select PDF files only!', 'error');
+        return;
+    }
+    
+    const previewDiv = document.getElementById('upload-preview');
+    previewDiv.style.display = 'block';
+    previewDiv.innerHTML = `<div style="padding:10px; background:var(--surface2); border-radius:8px">
+        <strong>📤 Uploading ${validFiles.length} file(s)...</strong>
+        <div id="upload-progress"></div>
+    </div>`;
+    
+    for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i];
+        const progressDiv = document.getElementById('upload-progress');
+        progressDiv.innerHTML = `<div>Processing: ${file.name}...</div>`;
+        
+        // Read file as Base64
+        const base64 = await fileToBase64(file);
+        const fileSizeKB = (file.size / 1024).toFixed(1);
+        
+        pdfFilesCache.push({
+            id: uid(),
+            title: file.name.replace('.pdf', ''),
+            filename: file.name,
+            data: base64,
+            size: fileSizeKB,
+            date: new Date().toLocaleDateString('en-PK'),
+            hidden: false,
+            timestamp: Date.now()
+        });
+    }
+    
+    await savePDFsToFirebase();
+    await loadPDFsFromFirebase();
+    renderAdminPDFs();
+    showToast(`✅ ${validFiles.length} PDF(s) uploaded successfully!`, 'success');
+}
+
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// Download PDF
+window.downloadPDFFile = async function(index) {
+    await loadPDFsFromFirebase();
+    const file = pdfFilesCache[index];
+    if (!file || file.hidden) {
+        showToast('File not available!', 'error');
+        return;
+    }
+    
+    const link = document.createElement('a');
+    link.href = file.data;
+    link.download = file.filename || `${file.title}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast(`📥 Downloading: ${file.title}`, 'success');
+};
+
+// View PDF Preview
+window.viewPDFFile = async function(index) {
+    await loadPDFsFromFirebase();
+    const file = pdfFilesCache[index];
+    if (!file || file.hidden) {
+        showToast('File not available!', 'error');
+        return;
+    }
+    
+    const previewWindow = window.open('', '_blank');
+    previewWindow.document.write(`
+        <html>
+            <head><title>${file.title}</title></head>
+            <body style="margin:0; padding:0; height:100vh;">
+                <embed src="${file.data}" width="100%" height="100%" type="application/pdf">
+            </body>
+        </html>
+    `);
+};
+
+// Edit PDF Title
+window.editPDFFile = async function(index) {
+    const file = pdfFilesCache[index];
+    const newTitle = prompt('Enter new title for PDF:', file.title);
+    if (newTitle && newTitle.trim()) {
+        file.title = newTitle.trim();
+        await savePDFsToFirebase();
+        await loadPDFsFromFirebase();
+        renderAdminPDFs();
+        showToast('✅ PDF title updated!', 'success');
+    }
+};
+
+// Hide/Show PDF
+window.toggleHidePDF = async function(index) {
+    pdfFilesCache[index].hidden = !pdfFilesCache[index].hidden;
+    await savePDFsToFirebase();
+    await loadPDFsFromFirebase();
+    renderAdminPDFs();
+    showToast(`PDF ${pdfFilesCache[index].hidden ? 'hidden' : 'visible'}!`, 'success');
+};
+
+// Delete PDF
+window.deletePDFFile = async function(index) {
+    if (confirm('Are you sure you want to delete this PDF?')) {
+        pdfFilesCache.splice(index, 1);
+        await savePDFsToFirebase();
+        await loadPDFsFromFirebase();
+        renderAdminPDFs();
+        showToast('✅ PDF deleted!', 'success');
+    }
+};
+
+// Escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Update renderAdminTab to include pdfs
+// Also update showPage to include pdf
 </script>
 
 </body>
