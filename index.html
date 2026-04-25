@@ -472,8 +472,97 @@
   window.showPage = (id) => { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById('page-'+id).classList.add('active'); if(id==='exam') renderExamSetup(); if(id==='view') renderViewSections(); if(id==='essays') renderEssays('Argumentative'); if(id==='suggest') renderSuggestSection(); if(id==='admin' && isAdmin) renderAdminTab('pending'); };
   
   // edit, essay, sections
-  window.openEditMCQ = (id)=>{ const m=mcqsCache.find(x=>x.id===id); if(!m)return; document.getElementById('edit-id').value=id; document.getElementById('edit-section').innerHTML=getSections().map(s=>`<option ${s.id===m.section?'selected':''} value="${s.id}">${s.name}</option>`).join(''); document.getElementById('edit-question').value=m.question; document.getElementById('edit-a').value=m.optionA; document.getElementById('edit-b').value=m.optionB; document.getElementById('edit-c').value=m.optionC; document.getElementById('edit-d').value=m.optionD; document.getElementById('edit-correct').value=m.correct; document.getElementById('edit-modal').classList.add('open'); };
-  window.saveEdit = async ()=>{ const rawId=document.getElementById('edit-id').value, sec=document.getElementById('edit-section').value, q=document.getElementById('edit-question').value.trim(), a=document.getElementById('edit-a').value.trim(),b=document.getElementById('edit-b').value.trim(),c=document.getElementById('edit-c').value.trim(),d=document.getElementById('edit-d').value.trim(),cor=document.getElementById('edit-correct').value; const m=mcqsCache.find(x=>x.id===rawId); if(m){ m.section=sec; m.question=q; m.optionA=a; m.optionB=b; m.optionC=c; m.optionD=d; m.correct=cor; await commitMCQs(); } await refreshAllData(); closeEditModal(); renderAdminTab(currentAdminTab); showToast('Saved','success'); };
+window.openEditSuggestion = function(id) {
+  const s = suggestionsCache.find(x => x.id === id);
+  if (!s) return;
+  
+  document.getElementById('edit-id').value = 'sug:' + id;
+  
+  // Populate sections dropdown
+  document.getElementById('edit-section').innerHTML = getSections().map(sec => 
+    `<option value="${sec.id}" ${sec.id === s.section ? 'selected' : ''}>${sec.name}</option>`
+  ).join('');
+  
+  document.getElementById('edit-question').value = s.question;
+  document.getElementById('edit-a').value = s.optionA;
+  document.getElementById('edit-b').value = s.optionB;
+  document.getElementById('edit-c').value = s.optionC;
+  document.getElementById('edit-d').value = s.optionD;
+  document.getElementById('edit-correct').value = s.correct || 'A';
+  
+  document.getElementById('edit-modal').classList.add('open');
+};
+  // Replace the existing saveEdit function with this:
+
+window.saveEdit = async function() {
+  const rawId = document.getElementById('edit-id').value;
+  const sec = document.getElementById('edit-section').value;
+  const q = document.getElementById('edit-question').value.trim();
+  const a = document.getElementById('edit-a').value.trim();
+  const b = document.getElementById('edit-b').value.trim();
+  const c = document.getElementById('edit-c').value.trim();
+  const d = document.getElementById('edit-d').value.trim();
+  const cor = document.getElementById('edit-correct').value;
+  
+  if (!q || !a || !b || !c || !d) { 
+    showToast('Fill all fields', 'error'); 
+    return; 
+  }
+
+  // Check if editing a SUGGESTION (prefixed with 'sug:')
+  if (rawId.startsWith('sug:')) {
+    const id = rawId.slice(4);
+    const sug = suggestionsCache.find(x => x.id === id);
+    if (sug) {
+      sug.section = sec;
+      sug.question = q;
+      sug.optionA = a;
+      sug.optionB = b;
+      sug.optionC = c;
+      sug.optionD = d;
+      sug.correct = cor;
+      sug.status = 'approved';  // Auto-approve when edited
+      
+      // Save updated suggestion
+      await commitSuggestions();
+      
+      // Also add to approved MCQs
+      mcqsCache.push({ 
+        id: uid(), 
+        section: sec, 
+        question: q, 
+        optionA: a, 
+        optionB: b, 
+        optionC: c, 
+        optionD: d, 
+        correct: cor 
+      });
+      await commitMCQs();
+      
+      showToast('Edited & Approved!', 'success');
+    }
+  } 
+  // Otherwise editing an existing APPROVED MCQ
+  else {
+    const mcq = mcqsCache.find(x => x.id === rawId);
+    if (mcq) {
+      mcq.section = sec;
+      mcq.question = q;
+      mcq.optionA = a;
+      mcq.optionB = b;
+      mcq.optionC = c;
+      mcq.optionD = d;
+      mcq.correct = cor;
+      await commitMCQs();
+      showToast('MCQ updated!', 'success');
+    }
+  }
+  
+  // Refresh all data and UI
+  await refreshAllData();
+  closeEditModal();
+  renderAdminTab(currentAdminTab);
+};
   window.closeEditModal = ()=>document.getElementById('edit-modal').classList.remove('open');
   window.openEssayModal = (id)=>{ document.getElementById('essay-edit-id').value=id||''; if(id){ const e=essaysCache.find(x=>x.id===id); if(e){ document.getElementById('essay-type').value=e.type; document.getElementById('essay-title').value=e.title; document.getElementById('essay-content').value=e.content; } } else { document.getElementById('essay-title').value=''; document.getElementById('essay-content').value=''; } document.getElementById('essay-modal').classList.add('open'); };
   window.saveEssay = async ()=>{ const id=document.getElementById('essay-edit-id').value, type=document.getElementById('essay-type').value, title=document.getElementById('essay-title').value.trim(), content=document.getElementById('essay-content').value.trim(); if(!title){ showToast('Title required','error'); return; } if(id){ const idx=essaysCache.findIndex(e=>e.id===id); if(idx!==-1) essaysCache[idx]={id,type,title,content}; }else essaysCache.push({id:uid(),type,title,content}); await commitEssays(); await refreshAllData(); closeEssayModal(); renderAdminTab('essays'); showToast('Essay saved','success'); };
@@ -484,5 +573,6 @@
   
   (async function init() { await refreshAllData(); renderExamSetup(); })();
 </script>
+
 </body>
 </html>
