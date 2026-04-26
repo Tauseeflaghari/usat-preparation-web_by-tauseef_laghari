@@ -1726,6 +1726,31 @@ function filterEssays(type) { renderEssays(type); }
 function renderSuggestSection() {
     const sel = document.getElementById('sug-section');
     if (sel) sel.innerHTML = getSections().map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+    
+    // Add correct option dropdown in main form (after options)
+    const optionsContainer = document.querySelector('#sug-suggestions');
+    if (optionsContainer && !document.getElementById('sug-correct')) {
+        const correctHtml = `
+            <div class="form-group" style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 10px;">
+                <label style="font-weight: 700; color: var(--success);">✅ Select Correct Answer (Required)</label>
+                <select id="sug-correct" style="padding: 10px; border-radius: 8px; border: 1px solid var(--border); width: 100%;">
+                    <option value="">-- Select Correct Option --</option>
+                    <option value="A">A </option>
+                    <option value="B">B </option>
+                    <option value="C">C </option>
+                    <option value="D">D </option>
+                </select>
+                <small style="font-size: 0.65rem; color: var(--text3);">Selecting correct answer helps admin approve faster!</small>
+            </div>
+        `;
+        
+        // Insert before the "Add Another MCQ" button
+        const moreBtn = document.getElementById('more-suggestions');
+        if (moreBtn && moreBtn.parentNode) {
+            moreBtn.insertAdjacentHTML('beforebegin', correctHtml);
+        }
+    }
+    
     extraSuggestions = [];
     document.getElementById('more-suggestions').innerHTML = '';
 }
@@ -1736,13 +1761,46 @@ function addMoreSuggestion() {
     const div = document.createElement('div');
     div.className = 'card';
     div.style.marginBottom = '16px';
+    div.style.border = '1px solid var(--border)';
+    div.style.padding = '15px';
+    div.style.borderRadius = '12px';
     div.id = 'extra-sug-' + idx;
-    div.innerHTML = `<div style="display:flex;justify-content:space-between;margin-bottom:10px"><strong>MCQ #${idx + 2}</strong><button class="btn btn-danger btn-sm" onclick="document.getElementById('extra-sug-${idx}').remove(); extraSuggestions.splice(${idx},1)">Remove</button></div><div class="form-group"><label>Section</label><select id="sug2-section-${idx}">${getSections().map(s => `<option value="${s.id}">${s.name}</option>`).join('')}</select></div><div class="form-group"><label>Question</label><textarea id="sug2-q-${idx}"></textarea></div><div class="form-group"><label>A</label><input type="text" id="sug2-a-${idx}"></div><div class="form-group"><label>B</label><input type="text" id="sug2-b-${idx}"></div><div class="form-group"><label>C</label><input type="text" id="sug2-c-${idx}"></div><div class="form-group"><label>D</label><input type="text" id="sug2-d-${idx}"></div>`;
+    div.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border)">
+            <strong style="color: var(--primary);">📝 MCQ #${idx + 2}</strong>
+            <button class="btn btn-danger btn-sm" onclick="document.getElementById('extra-sug-${idx}').remove(); extraSuggestions.splice(${idx},1)">❌ Remove</button>
+        </div>
+        <div class="form-group">
+            <label>📚 Section</label>
+            <select id="sug2-section-${idx}" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border)">
+                ${getSections().map(s => `<option value="${s.id}">${s.icon} ${s.name}</option>`).join('')}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>❓ Question</label>
+            <textarea id="sug2-q-${idx}" rows="2" placeholder="Write your question here..." style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border)"></textarea>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+            <div class="form-group"><label>A) Option 1</label><input type="text" id="sug2-a-${idx}" placeholder="Enter option A" style="width:100%; padding:8px; border-radius:8px"></div>
+            <div class="form-group"><label>B) Option 2</label><input type="text" id="sug2-b-${idx}" placeholder="Enter option B" style="width:100%; padding:8px; border-radius:8px"></div>
+            <div class="form-group"><label>C) Option 3</label><input type="text" id="sug2-c-${idx}" placeholder="Enter option C" style="width:100%; padding:8px; border-radius:8px"></div>
+            <div class="form-group"><label>D) Option 4</label><input type="text" id="sug2-d-${idx}" placeholder="Enter option D" style="width:100%; padding:8px; border-radius:8px"></div>
+        </div>
+        <div class="form-group" style="margin-top: 10px; background: var(--surface2); padding: 10px; border-radius: 8px;">
+            <label style="color: var(--success); font-weight: 700;">✅ Correct Answer</label>
+            <select id="sug2-correct-${idx}" style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--border)">
+                <option value="">-- Select Correct Option --</option>
+                <option value="A">A) First Option</option>
+                <option value="B">B) Second Option</option>
+                <option value="C">C) Third Option</option>
+                <option value="D">D) Fourth Option</option>
+            </select>
+        </div>
+    `;
     document.getElementById('more-suggestions').appendChild(div);
 }
 
 async function submitSuggestion() {
-    // Check if user is logged in
     if (!currentUser || currentUser === "") {
         showToast('Please login first!', 'error');
         return;
@@ -1754,8 +1812,17 @@ async function submitSuggestion() {
     const c = document.getElementById('sug-c').value.trim();
     const d = document.getElementById('sug-d').value.trim();
     const sec = document.getElementById('sug-section').value;
+    const correct = document.getElementById('sug-correct') ? document.getElementById('sug-correct').value : '';
     
-    if (!q || !a || !b || !c || !d) { showToast('Fill all fields for MCQ #1', 'error'); return; }
+    if (!q || !a || !b || !c || !d) { 
+        showToast('Fill all fields for MCQ #1', 'error'); 
+        return; 
+    }
+    
+    if (!correct) {
+        showToast('Please select correct answer for MCQ #1!', 'error');
+        return;
+    }
     
     const now = new Date();
     const submittedAt = now.toLocaleString('en-PK', { timeZone: 'Asia/Karachi' });
@@ -1770,7 +1837,7 @@ async function submitSuggestion() {
         optionB: b, 
         optionC: c, 
         optionD: d, 
-        correct: '', 
+        correct: correct,
         status: 'pending',
         submittedBy: currentUser,
         submittedAt: submittedAt,
@@ -1788,7 +1855,13 @@ async function submitSuggestion() {
         const c2 = document.getElementById('sug2-c-' + idx)?.value.trim();
         const d2 = document.getElementById('sug2-d-' + idx)?.value.trim();
         const sec2 = document.getElementById('sug2-section-' + idx)?.value;
+        const correct2 = document.getElementById('sug2-correct-' + idx)?.value || '';
+        
         if (q2 && a2 && b2 && c2 && d2) {
+            if (!correct2) {
+                showToast(`Please select correct answer for MCQ #${idx + 2}!`, 'error');
+                return;
+            }
             suggestionsCache.push({ 
                 id: uid(), 
                 section: sec2, 
@@ -1797,7 +1870,7 @@ async function submitSuggestion() {
                 optionB: b2, 
                 optionC: c2, 
                 optionD: d2, 
-                correct: '', 
+                correct: correct2,
                 status: 'pending',
                 submittedBy: currentUser,
                 submittedAt: submittedAt,
@@ -1809,10 +1882,12 @@ async function submitSuggestion() {
     }
     
     await commitSuggestions();
-    showToast('Submitted! Awaiting admin approval ✅', 'success');
+    showToast('✅ Submitted! Awaiting admin approval!', 'success');
     
+    // Clear form
     document.getElementById('sug-question').value = '';
     ['a', 'b', 'c', 'd'].forEach(x => document.getElementById('sug-' + x).value = '');
+    if (document.getElementById('sug-correct')) document.getElementById('sug-correct').value = '';
     extraSuggestions = [];
     document.getElementById('more-suggestions').innerHTML = '';
     await refreshAllData();
@@ -1865,6 +1940,7 @@ function renderSuggestionsTable(status) {
                         <th>Section</th>
                         <th>Question</th>
                         <th>Options</th>
+                        <th>Correct</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -1880,11 +1956,20 @@ function renderSuggestionsTable(status) {
                             <td style="max-width:200px">${s.question}</td>
                             <td style="font-size:.78rem">A: ${s.optionA}<br>B: ${s.optionB}<br>C: ${s.optionC}<br>D: ${s.optionD}</td>
                             <td>
-                                ${status === 'pending' ? `<button class="btn btn-success btn-sm" onclick="approveSuggestion('${s.id}')">Approve</button> ` : ''}
+                                <select id="correct-${s.id}" style="padding:5px; border-radius:6px; border:1px solid var(--border)">
+                                    <option value="" ${!s.correct ? 'selected' : ''}>Select</option>
+                                    <option value="A" ${s.correct === 'A' ? 'selected' : ''}>A</option>
+                                    <option value="B" ${s.correct === 'B' ? 'selected' : ''}>B</option>
+                                    <option value="C" ${s.correct === 'C' ? 'selected' : ''}>C</option>
+                                    <option value="D" ${s.correct === 'D' ? 'selected' : ''}>D</option>
+                                </select>
+                            </td>
+                            <td>
+                                ${status === 'pending' ? `<button class="btn btn-success btn-sm" onclick="approveSuggestionWithCorrect('${s.id}')">Approve</button> ` : ''}
                                 <button class="btn btn-warning btn-sm" onclick="openEditSuggestion('${s.id}')">Edit</button>
                                 ${status === 'pending' ? `<button class="btn btn-danger btn-sm" onclick="rejectSuggestion('${s.id}')">Reject</button>` : `<button class="btn btn-danger btn-sm" onclick="deleteSuggestion('${s.id}')">Delete</button>`}
                             </td>
-                        </tr>
+                        </table>
                     `).join('')}
                 </tbody>
             </table>
@@ -3448,8 +3533,16 @@ window.approveEssay = async function(id) {
         await commitEssays();
         await refreshAllData();
         
+        // Remove from pending cache
+        essaySuggestionsCache = essaySuggestionsCache.filter(e => e.id !== id);
+        await saveEssaySuggestions();
+        
         showToast('✅ Essay approved and published!', 'success');
-        renderEssayPending();
+        
+        // Refresh admin essay pending tab
+        if (currentAdminTab === 'essay-pending') {
+            await renderEssayPending();
+        }
         
         // Refresh essays page if open
         if (document.getElementById('page-essays').classList.contains('active')) {
@@ -3611,6 +3704,34 @@ window.markUserAsRead = async function(userName) {
     await db.ref('admin_read_status/' + userName).set(true);
     if (currentAdminTab === 'history') {
         await renderAdminTab('history');
+    }
+};
+window.approveSuggestionWithCorrect = async function(id) {
+    const sug = suggestionsCache.find(s => s.id === id);
+    if (!sug) return;
+    
+    // If correct already selected by student, use that
+    if (sug.correct) {
+        sug.status = 'approved';
+        await commitSuggestions();
+        
+        mcqsCache.push({ 
+            id: uid(), 
+            section: sug.section, 
+            question: sug.question, 
+            optionA: sug.optionA, 
+            optionB: sug.optionB, 
+            optionC: sug.optionC, 
+            optionD: sug.optionD, 
+            correct: sug.correct 
+        });
+        await commitMCQs();
+        await refreshAllData();
+        
+        showToast('✅ Approved & added to MCQs!', 'success');
+        renderAdminTab('pending');
+    } else {
+        showToast('No correct answer selected. Please edit first!', 'error');
     }
 };
 </script>
