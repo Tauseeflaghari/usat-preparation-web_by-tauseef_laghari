@@ -2057,51 +2057,67 @@ async function renderAdminHistory() {
     const data = snap.val() || {};
     const users = Object.keys(data);
     
-    let html = `<div class="card" style="margin-bottom:16px;">
-        <div style="background:var(--primary); color:white; padding:12px 16px; border-radius:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px">
-            <div><strong>📊 Total Visitors:</strong> ${users.length}</div>
-            <button class="btn btn-danger btn-sm" onclick="clearAllFirebaseHistory()" style="background:#dc2626">🗑 Clear All Logs</button>
-        </div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;">`;
+    // Load read status from Firebase
+    const readStatusSnap = await db.ref('admin_read_status').once('value');
+    let readStatus = readStatusSnap.val() || {};
     
+    // Create users array with latest activity timestamp
+    let usersArray = [];
     for (const u of users) {
         const logsData = await db.ref('portal_logs/' + u).once('value');
         const userLogs = logsData.val() || {};
-        const logsArray = Object.entries(userLogs).map(([key, val]) => ({ id: key, ...val }));
+        const logsArray = Object.values(userLogs);
         const lastLog = logsArray[logsArray.length - 1];
+        const latestTimestamp = lastLog?.timestamp || 0;
         
-        // Total session time calculate karo
-        let totalSessionTime = 0;
-        logsArray.forEach(log => {
-            if (log.task === "Opened Portal") {
-                const nextLogIndex = logsArray.findIndex(l => l.timestamp > log.timestamp);
-                if (nextLogIndex !== -1) {
-                    totalSessionTime += (logsArray[nextLogIndex].timestamp - log.timestamp);
-                }
-            }
+        usersArray.push({
+            name: u,
+            latestTimestamp: latestTimestamp,
+            lastLog: lastLog,
+            logsCount: logsArray.length,
+            isRead: readStatus[u] === true
         });
-        
-        const totalHours = Math.floor(totalSessionTime / 3600000);
-        const totalMinutes = Math.floor((totalSessionTime % 3600000) / 60000);
-        const totalSeconds = Math.floor((totalSessionTime % 60000) / 1000);
-        const totalTimeStr = `${totalHours > 0 ? totalHours + 'h ' : ''}${totalMinutes > 0 ? totalMinutes + 'm ' : ''}${totalSeconds}s`;
+    }
+    
+    // Sort by latest timestamp (newest first)
+    usersArray.sort((a, b) => b.latestTimestamp - a.latestTimestamp);
+    
+    let html = `
+        <div class="card" style="margin-bottom:16px;">
+            <div style="background:var(--primary); color:white; padding:12px 16px; border-radius:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px">
+                <div><strong>📊 Total Visitors:</strong> ${users.length}</div>
+                <div><strong>🆕 Unread:</strong> ${usersArray.filter(u => !u.isRead).length}</div>
+                <button class="btn btn-danger btn-sm" onclick="clearAllFirebaseHistory()" style="background:#dc2626">🗑 Clear All Logs</button>
+                <button class="btn btn-outline btn-sm" onclick="markAllAsRead()" style="background:white; color:var(--primary)">✅ Mark All as Read</button>
+            </div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px;">`;
+    
+    for (const user of usersArray) {
+        const userName = user.name.replace(/_/g, '.');
+        const lastLog = user.lastLog;
+        const unreadBadge = !user.isRead ? '<span style="display:inline-block; width:10px; height:10px; background:#ef4444; border-radius:50%; margin-left:8px;"></span>' : '';
         
         html += `
-            <div class="card user-box" style="cursor:pointer; border-left:4px solid var(--primary)" onclick="viewFirebaseUser('${u}')">
+            <div class="card user-box" data-user="${user.name}" style="cursor:pointer; border-left:4px solid ${!user.isRead ? '#ef4444' : 'var(--primary)'}" onclick="viewFirebaseUser('${user.name}'); markUserAsRead('${user.name}')">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start">
                     <div>
-                        <strong style="font-size:1rem">👤 ${u.replace(/_/g, '.')}</strong>
+                        <div style="display:flex; align-items:center; flex-wrap:wrap; gap:6px">
+                            <strong style="font-size:1rem">👤 ${userName}</strong>
+                            ${unreadBadge}
+                        </div>
                         <div style="font-size:11px; color:var(--text3); margin-top:4px">📅 Last: ${lastLog?.time || 'N/A'}</div>
-                        <div style="font-size:11px; color:var(--text3)">⏱ Total active: ${totalTimeStr}</div>
-                        <div style="margin-top:6px"><span class="badge badge-blue">📋 ${logsArray.length} activities</span></div>
+                        <div style="font-size:11px; color:var(--text3)">📋 ${user.logsCount} activities</div>
+                        ${!user.isRead ? '<div style="font-size:10px; color:#ef4444; margin-top:4px">🆕 New activity!</div>' : ''}
                     </div>
-                    <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteUserHistory('${u}')" style="background:#ef4444; padding:4px 10px">🗑 Delete</button>
+                    <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteUserHistory('${user.name}')" style="background:#ef4444; padding:4px 10px">🗑 Delete</button>
                 </div>
-            </div>`;
+            </div>
+        `;
     }
     
     html += `</div><div id="user-detail-view" style="margin-top:20px"></div>`;
+    
     return html;
 }
 viewFirebaseUser = async function(userName) {
@@ -3553,6 +3569,50 @@ async function loadHomePageRating() {
         container.innerHTML = ratingHtml;
     }
 }
+// ========== HISTORY HELPER FUNCTIONS ==========
+
+// Clear all history
+window.clearAllFirebaseHistory = async function() {
+    if (confirm('⚠️ Delete ALL logs from Firebase? This cannot be undone!')) {
+        await db.ref('portal_logs').remove();
+        await db.ref('admin_read_status').remove();
+        showToast('🗑 All logs cleared!', 'success');
+        await renderAdminTab('history');
+    }
+};
+
+// Delete individual user history
+window.deleteUserHistory = async function(userName) {
+    if (confirm('⚠️ Delete ALL history for ' + userName.replace(/_/g, '.') + '? This cannot be undone!')) {
+        await db.ref('portal_logs/' + userName).remove();
+        await db.ref('admin_read_status/' + userName).remove();
+        showToast('✅ History deleted for ' + userName.replace(/_/g, '.') + '!', 'success');
+        await renderAdminTab('history');
+    }
+};
+
+// Mark all users as read
+window.markAllAsRead = async function() {
+    if (confirm('✅ Mark all users as read?')) {
+        const snap = await db.ref('portal_logs').once('value');
+        const users = Object.keys(snap.val() || {});
+        
+        for (let i = 0; i < users.length; i++) {
+            await db.ref('admin_read_status/' + users[i]).set(true);
+        }
+        
+        showToast('✅ All users marked as read!', 'success');
+        await renderAdminTab('history');
+    }
+};
+
+// Mark single user as read
+window.markUserAsRead = async function(userName) {
+    await db.ref('admin_read_status/' + userName).set(true);
+    if (currentAdminTab === 'history') {
+        await renderAdminTab('history');
+    }
+};
 </script>
 
 </body>
