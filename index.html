@@ -964,6 +964,110 @@ canvas { max-height: 300px; width: 100% !important; }
     border-color: var(--primary);
     background: var(--surface);
 }
+/* ===== RATING STARS ===== */
+.rating-stars span {
+    font-size: 2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #cbd5e1;
+}
+.rating-stars span:hover,
+.rating-stars span.active {
+    color: #fbbf24;
+    transform: scale(1.1);
+}
+.rating-stars span.active {
+    text-shadow: 0 0 5px rgba(251, 191, 36, 0.5);
+}
+/* ===== RATING DISPLAY ===== */
+.rating-big {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--gold);
+}
+.rating-stars-big {
+    font-size: 1.5rem;
+    letter-spacing: 4px;
+}
+.rating-summary {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.rating-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0;
+}
+.rating-bar-label {
+    width: 60px;
+    font-size: 0.8rem;
+}
+.rating-bar {
+    flex: 1;
+    height: 10px;
+    background: var(--surface2);
+    border-radius: 10px;
+    overflow: hidden;
+}
+.rating-bar-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 10px;
+    width: 0%;
+}
+.rating-bar-count {
+    width: 40px;
+    font-size: 0.75rem;
+    text-align: right;
+}
+.rating-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+.rating-stat-card {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid var(--border);
+}
+.rating-stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+.rating-stat-label {
+    font-size: 0.65rem;
+    color: var(--text3);
+}
+/* Home page tabs styling */
+.home-quick-tabs {
+    background: var(--surface2);
+    border-radius: 1rem;
+    padding: 8px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+}
+.home-quick-tabs .nav-btn {
+    background: var(--bg);
+    padding: 8px 14px;
+    border-radius: 30px;
+    font-size: 0.75rem;
+}
+@media (max-width: 640px) {
+    .home-quick-tabs .nav-btn {
+        padding: 6px 10px;
+        font-size: 0.7rem;
+    }
+}
     </style>
 
 </head>
@@ -987,13 +1091,67 @@ canvas { max-height: 300px; width: 100% !important; }
   <button class="nav-btn" onclick="showPage('view')">👁 View MCQs</button>
   <button class="nav-btn" onclick="showPage('essays')">📄 Essays</button>
   <button class="nav-btn" onclick="showPage('pdf')">📚 PDFs</button>
-  <button class="nav-btn" onclick="showPage('suggest')">💡 Suggest</button>
+  <button class="nav-btn" onclick="showPage('suggest')">💡 Suggest MCQs</button>
+  <button class="nav-btn" onclick="showPage('essay-suggest')">✍️ Suggest Essay</button>
+<button class="nav-btn" onclick="showPage('general-suggest')">💬 Feedback</button>
   <span class="nav-spacer"></span>
   <button class="nav-btn admin-btn" onclick="showAdminLogin()">⚙ Admin</button>
 </nav>
 
 <!-- PAGES -->
-<div id="page-home" class="page active"><div class="hero"><h1>USAT Prep Platform</h1><p>Practice MCQs, take mock exams, read essays, and contribute questions — all in one place.</p></div><div class="home-cards"><div class="home-card" onclick="showPage('exam')"><div class="hc-icon">🎯</div><h3>Take Exam</h3><p>Choose sections & number of MCQs for a custom test session</p></div><div class="home-card" onclick="showPage('view')"><div class="hc-icon">📚</div><h3>Browse MCQs</h3><p>Study questions by section without time pressure</p></div><div class="home-card" onclick="showPage('essays')"><div class="hc-icon">✍️</div><h3>Essays</h3><p>Read argumentative & narrative essay samples</p></div><div class="home-card" onclick="showPage('suggest')"><div class="hc-icon">💡</div><h3>Suggest MCQ</h3><p>Contribute your own questions for admin review</p></div></div></div>
+<div id="page-home" class="page active">
+    <div class="hero">
+        <h1>USAT Prep Platform</h1>
+        <p>Practice MCQs, take mock exams, read essays, and contribute questions — all in one place.</p>
+    </div>
+    
+    <!-- Overall Rating Display -->
+    <div id="home-rating-container" style="margin-bottom: 24px;"></div>
+    
+    <!-- Home Cards -->
+    <div class="home-cards">
+        <div class="home-card" onclick="showPage('exam')">
+            <div class="hc-icon">🎯</div>
+            <h3>Take Exam</h3>
+            <p>Choose sections & number of MCQs for a custom test session</p>
+        </div>
+        <div class="home-card" onclick="showPage('view')">
+            <div class="hc-icon">📚</div>
+            <h3>Browse MCQs</h3>
+            <p>Study questions by section without time pressure</p>
+        </div>
+        <div class="home-card" onclick="showPage('essays')">
+            <div class="hc-icon">✍️</div>
+            <h3>Essays</h3>
+            <p>Read argumentative & narrative essay samples</p>
+        </div>
+        <div class="home-card" onclick="showPage('pdf')">
+            <div class="hc-icon">📚</div>
+            <h3>PDF Resources</h3>
+            <p>Download study materials and notes</p>
+        </div>
+        <div class="home-card" onclick="showPage('essay-suggest')">
+            <div class="hc-icon">📝</div>
+            <h3>Suggest Essay</h3>
+            <p>Submit your own essay for review</p>
+        </div>
+        <div class="home-card" onclick="showPage('general-suggest')">
+            <div class="hc-icon">💬</div>
+            <h3>Feedback</h3>
+            <p>Rate and share your suggestions</p>
+        </div>
+        <div class="home-card" onclick="showPage('suggest')">
+            <div class="hc-icon">💡</div>
+            <h3>Suggest MCQ</h3>
+            <p>Contribute your own questions for admin review</p>
+        </div>
+        <div class="home-card" onclick="showPage('dashboard')">
+            <div class="hc-icon">📊</div>
+            <h3>Dashboard</h3>
+            <p>View your performance analytics</p>
+        </div>
+    </div>
+</div>
 <!-- USER DASHBOARD PAGE -->
 <div id="page-dashboard" class="page">
     <h2>📊 My Dashboard</h2>
@@ -1008,6 +1166,58 @@ canvas { max-height: 300px; width: 100% !important; }
 <div id="page-exam" class="page"><div id="exam-setup"><h2>📝 Custom Exam</h2><p class="subtitle">Select sections and how many MCQs you want from each.</p><div class="section-grid" id="exam-section-grid"></div><div style="margin-top:8px"><button class="btn btn-primary" onclick="startExam()">🚀 Start Exam</button></div></div><div id="exam-running" style="display:none"><div class="exam-progress"><div><div class="ep-label">Question</div><div class="ep-val" id="ep-current">1</div></div><div class="ep-divider"></div><div><div class="ep-label">Total</div><div class="ep-val" id="ep-total">0</div></div><div class="ep-divider"></div><div><div class="ep-label">Answered</div><div class="ep-val" id="ep-answered">0</div></div><div style="margin-left:auto"><button class="btn btn-warning btn-sm" onclick="submitExam()">Submit All</button></div></div><div id="exam-questions"></div><div style="margin-top:16px; display:flex; gap:10px;"><button class="btn btn-outline" onclick="showPage('exam');resetExam()">← Back</button><button class="btn btn-primary" onclick="submitExam()">Submit Exam</button></div></div><div id="exam-results" style="display:none"><h2 style="text-align:center; margin-bottom:24px">📊 Results</h2><div class="score-circle"><div class="sc-num" id="res-score"></div><div class="sc-label">Score</div></div><div id="res-breakdown" style="margin-bottom:24px"></div><div id="res-review"></div><div style="margin-top:24px; text-align:center"><button class="btn btn-primary" onclick="showPage('exam');resetExam()">New Exam</button></div></div></div>
 <div id="page-view" class="page"><h2>📚 Browse MCQs</h2><p class="subtitle">Select a section to study.</p><div class="section-grid" id="view-section-grid"></div><div id="view-content"></div></div>
 <div id="page-essays" class="page"><h2>✍️ Essays</h2><div class="tabs"><div class="tab active" onclick="filterEssays('Argumentative')">📖 Argumentative</div><div class="tab" onclick="filterEssays('Narrative')">📝 Narrative</div></div><div id="essay-list"></div></div>
+<!-- ESSAY SUGGESTION PAGE -->
+<div id="page-essay-suggest" class="page">
+    <h2>✍️ Suggest an Essay</h2>
+    <p class="subtitle">Submit your own essay for admin review. If approved, it will be published.</p>
+    <div class="card">
+        <div class="form-group">
+            <label>Essay Type</label>
+            <select id="essay-suggest-type">
+                <option value="Argumentative">📖 Argumentative</option>
+                <option value="Narrative">📝 Narrative</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Essay Title</label>
+            <input type="text" id="essay-suggest-title" placeholder="Enter essay title...">
+        </div>
+        <div class="form-group">
+            <label>Essay Content</label>
+            <textarea id="essay-suggest-content" rows="8" placeholder="Write your essay here..."></textarea>
+        </div>
+        <button class="btn btn-primary" onclick="submitEssaySuggestion()">📤 Submit Essay for Review</button>
+    </div>
+    <div id="essay-suggest-status"></div>
+</div>
+
+<!-- GENERAL SUGGESTION PAGE -->
+<div id="page-general-suggest" class="page">
+    <h2>💡 General Suggestion</h2>
+    <p class="subtitle">Share your ideas, feedback, or suggestions to help improve this platform.</p>
+    <div class="card">
+        <div class="form-group">
+            <label>Rating (How would you rate this platform?)</label>
+            <div class="rating-stars" style="display: flex; gap: 8px; font-size: 2rem; cursor: pointer; margin: 10px 0;">
+                <span data-rating="1" onclick="setRating(1)">☆</span>
+                <span data-rating="2" onclick="setRating(2)">☆</span>
+                <span data-rating="3" onclick="setRating(3)">☆</span>
+                <span data-rating="4" onclick="setRating(4)">☆</span>
+                <span data-rating="5" onclick="setRating(5)">☆</span>
+            </div>
+            <input type="hidden" id="general-suggest-rating" value="0">
+        </div>
+        <div class="form-group">
+            <label>Your Suggestion / Feedback</label>
+            <textarea id="general-suggest-text" rows="5" placeholder="Write your suggestion, feedback, or idea here..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>Your Name (Optional)</label>
+            <input type="text" id="general-suggest-name" placeholder="Your name (optional)">
+        </div>
+        <button class="btn btn-primary" onclick="submitGeneralSuggestion()">📤 Submit Suggestion</button>
+    </div>
+</div>
 <!-- PDF FILES PAGE -->
 <div id="page-pdf" class="page">
     <h2>📚 PDF Resources</h2>
@@ -1018,7 +1228,8 @@ canvas { max-height: 300px; width: 100% !important; }
 </div>
 <div id="page-suggest" class="page"><h2>💡 Suggest MCQ</h2><p class="subtitle">Write a question and submit for admin review.</p><div class="card"><div class="form-group"><label>Section</label><select id="sug-section"></select></div><div class="form-group"><label>Question Statement</label><textarea id="sug-question" placeholder="Write the question here..."></textarea></div><div class="form-group"><label>Option A</label><input type="text" id="sug-a" placeholder="Option A"></div><div class="form-group"><label>Option B</label><input type="text" id="sug-b" placeholder="Option B"></div><div class="form-group"><label>Option C</label><input type="text" id="sug-c" placeholder="Option C"></div><div class="form-group"><label>Option D</label><input type="text" id="sug-d" placeholder="Option D"></div><div id="sug-suggestions" style="margin-top:8px"><div id="more-suggestions"></div><button class="btn btn-outline btn-sm" onclick="addMoreSuggestion()">+ Add Another MCQ</button></div><div style="margin-top:20px"><button class="btn btn-primary" onclick="submitSuggestion()">📤 Submit for Review</button></div></div></div>
 
-<div id="page-admin" class="page"><h2>⚙ Admin Panel</h2><div class="tabs" id="admin-tabs"><div class="tab active" onclick="adminTab('pending')">⏳ Pending</div><div class="tab" onclick="adminTab('approved')">✅ Approved</div><div class="tab" onclick="adminTab('rejected')">❌ Rejected</div><div class="tab" onclick="adminTab('add')">➕ Add MCQ</div>           <div class="tab" onclick="adminTab('bulk')">📤 Bulk Upload</div><div class="tab" onclick="adminTab('essays')">📄 Essays</div>  <div class="tab" onclick="adminTab('pdfs')">📁 PDF Manager</div><div class="tab" onclick="adminTab('sections')">🗂 Sections</div><div class="tab" onclick="adminTab('history')">📜 History</div></div><div id="admin-tab-content"></div></div>
+<div id="page-admin" class="page"><h2>⚙ Admin Panel</h2><div class="tabs" id="admin-tabs"><div class="tab active" onclick="adminTab('pending')">⏳ Pending</div><div class="tab" onclick="adminTab('approved')">✅ Approved</div><div class="tab" onclick="adminTab('rejected')">❌ Rejected</div><div class="tab" onclick="adminTab('add')">➕ Add MCQ</div>            <div class="tab" onclick="adminTab('essay-pending')">📝 Essay Pending</div>
+<div class="tab" onclick="adminTab('general-suggestions')">💬 User Suggestions</div><div class="tab" onclick="adminTab('bulk')">📤 Bulk Upload</div><div class="tab" onclick="adminTab('essays')">📄 Essays</div>  <div class="tab" onclick="adminTab('pdfs')">📁 PDF Manager</div><div class="tab" onclick="adminTab('sections')">🗂 Sections</div><div class="tab" onclick="adminTab('history')">📜 History</div></div><div id="admin-tab-content"></div></div>
 
 <!-- MODALS -->
 <div class="modal-overlay" id="admin-modal"><div class="modal"><h3>🔐 Admin Login</h3><div class="form-group"><label>Username</label><input type="text" id="admin-user" placeholder="Enter username"></div><div class="form-group"><label>Password</label><input type="password" id="admin-pass" placeholder="Enter password"></div><div id="login-error" style="color:var(--red);font-size:.82rem;margin-bottom:12px;display:none">Invalid credentials</div><div class="modal-footer"><button class="btn btn-outline" onclick="closeAdminModal()">Cancel</button><button class="btn btn-primary" onclick="doAdminLogin()">Login</button></div></div></div>
@@ -1051,8 +1262,8 @@ const DEFAULT_SECTIONS = [
     { id: 'computer', name: 'Computer', icon: '💻' },
     { id: 'english', name: 'English', icon: '📖' },
     { id: 'verbal', name: 'Verbal Reasoning', icon: '🧠' },
-    { id: 'analogy', name: 'Analogy Types', icon: '🔗' },
-    { id: 'opposites', name: 'Opposites', icon: '↔️' },
+    { id: 'analogy', name: 'Analogy', icon: '🔗' },
+    { id: 'opposites', name: 'Antonyms', icon: '↔️' },
     { id: 'synonyms', name: 'Synonyms', icon: '🔄' },
 ];
 
@@ -1129,20 +1340,37 @@ async function saveActivity(action, examData = null) {
 // ========== USER SESSION ==========
 async function startUserSession() {
     const rawName = document.getElementById('user-session-name').value.trim();
-    if (!rawName) { showToast("Please enter your name!", "error"); return; }
+    if (!rawName) { 
+        showToast("Please enter your name!", "error"); 
+        return; 
+    }
+    
+    // SECRET ADMIN ACCESS
     if (rawName === "A49a8855.@Usat.cs") {
+        currentUser = "Admin";
+        sessionStartTime = Date.now();
         document.getElementById('welcome-screen').style.display = 'none';
         await refreshAllData();
+        isAdmin = true;
         showPage('admin');
         showToast("Welcome back, Admin!", "success");
         return;
     }
+    
+    // REGULAR USER
     currentUser = rawName;
     sessionStartTime = Date.now();
     document.getElementById('welcome-screen').style.display = 'none';
     await refreshAllData();
     await saveActivity("Opened Portal");
     showPage('home');
+    
+    // Load home page rating after a short delay
+    setTimeout(() => {
+        if (typeof loadHomePageRating === 'function') {
+            loadHomePageRating();
+        }
+    }, 500);
 }
 
 // ========== PAGE NAVIGATION ==========
@@ -1158,7 +1386,13 @@ window.showPage = function(id) {
     if (id === 'suggest') renderSuggestSection();
     if (id === 'pdf') renderPDFsForUser();
     if (id === 'dashboard' && currentUser) loadUserDashboard();
+    if (id === 'essay-suggest') { /* no need to load anything */ }
+    if (id === 'general-suggest') { /* no need to load anything */ }
     if (id === 'admin' && isAdmin) renderAdminTab('pending');
+        if (id === 'home') {
+        loadHomePageRating();
+    }
+
 };
 
 // ========== EXAM FUNCTIONS ==========
@@ -1508,14 +1742,43 @@ function addMoreSuggestion() {
 }
 
 async function submitSuggestion() {
+    // Check if user is logged in
+    if (!currentUser || currentUser === "") {
+        showToast('Please login first!', 'error');
+        return;
+    }
+    
     const q = document.getElementById('sug-question').value.trim();
     const a = document.getElementById('sug-a').value.trim();
     const b = document.getElementById('sug-b').value.trim();
     const c = document.getElementById('sug-c').value.trim();
     const d = document.getElementById('sug-d').value.trim();
     const sec = document.getElementById('sug-section').value;
+    
     if (!q || !a || !b || !c || !d) { showToast('Fill all fields for MCQ #1', 'error'); return; }
-    suggestionsCache.push({ id: uid(), section: sec, question: q, optionA: a, optionB: b, optionC: c, optionD: d, correct: '', status: 'pending', ts: Date.now() });
+    
+    const now = new Date();
+    const submittedAt = now.toLocaleString('en-PK', { timeZone: 'Asia/Karachi' });
+    const submittedDate = now.toLocaleDateString('en-PK');
+    const submittedTime = now.toLocaleTimeString('en-PK');
+    
+    suggestionsCache.push({ 
+        id: uid(), 
+        section: sec, 
+        question: q, 
+        optionA: a, 
+        optionB: b, 
+        optionC: c, 
+        optionD: d, 
+        correct: '', 
+        status: 'pending',
+        submittedBy: currentUser,
+        submittedAt: submittedAt,
+        submittedDate: submittedDate,
+        submittedTime: submittedTime,
+        timestamp: Date.now()
+    });
+    
     // Save extra suggestions
     for (let idx = 0; idx < extraSuggestions.length; idx++) {
         const q2 = document.getElementById('sug2-q-' + idx)?.value.trim();
@@ -1526,11 +1789,28 @@ async function submitSuggestion() {
         const d2 = document.getElementById('sug2-d-' + idx)?.value.trim();
         const sec2 = document.getElementById('sug2-section-' + idx)?.value;
         if (q2 && a2 && b2 && c2 && d2) {
-            suggestionsCache.push({ id: uid(), section: sec2, question: q2, optionA: a2, optionB: b2, optionC: c2, optionD: d2, correct: '', status: 'pending', ts: Date.now() });
+            suggestionsCache.push({ 
+                id: uid(), 
+                section: sec2, 
+                question: q2, 
+                optionA: a2, 
+                optionB: b2, 
+                optionC: c2, 
+                optionD: d2, 
+                correct: '', 
+                status: 'pending',
+                submittedBy: currentUser,
+                submittedAt: submittedAt,
+                submittedDate: submittedDate,
+                submittedTime: submittedTime,
+                timestamp: Date.now()
+            });
         }
     }
+    
     await commitSuggestions();
     showToast('Submitted! Awaiting admin approval ✅', 'success');
+    
     document.getElementById('sug-question').value = '';
     ['a', 'b', 'c', 'd'].forEach(x => document.getElementById('sug-' + x).value = '');
     extraSuggestions = [];
@@ -1564,6 +1844,8 @@ async function renderAdminTab(tab) {
     else if (tab === 'add') el.innerHTML = renderAdminAddForm();
     else if (tab === 'bulk') showBulkUploadUI();
     else if (tab === 'pdfs') renderAdminPDFs();
+    else if (tab === 'essay-pending') renderEssayPending();
+else if (tab === 'general-suggestions') renderGeneralSuggestions();
     else if (tab === 'essays') el.innerHTML = renderAdminEssays();
     else if (tab === 'sections') el.innerHTML = renderAdminSections();
     else if (tab === 'history') el.innerHTML = await renderAdminHistory();
@@ -1572,7 +1854,42 @@ async function renderAdminTab(tab) {
 function renderSuggestionsTable(status) {
     const sugs = getSuggestions().filter(s => s.status === status);
     if (!sugs.length) return `<div class="card" style="text-align:center">No ${status} suggestions.</div>`;
-    return `<div class="card"><div class="table-container"><table style="width:100%"><tr><th>Section</th><th>Question</th><th>Options</th><th>Actions</th></tr>${sugs.map(s => `<tr><td><span class="badge badge-blue">${getSections().find(x => x.id === s.section)?.name || s.section}</span></td><td style="max-width:200px">${s.question}</td><td style="font-size:.78rem">A: ${s.optionA}<br>B: ${s.optionB}<br>C: ${s.optionC}<br>D: ${s.optionD}</td><td>${status === 'pending' ? `<button class="btn btn-success btn-sm" onclick="approveSuggestion('${s.id}')">Approve</button> ` : ''}<button class="btn btn-warning btn-sm" onclick="openEditSuggestion('${s.id}')">Edit</button>${status === 'pending' ? `<button class="btn btn-danger btn-sm" onclick="rejectSuggestion('${s.id}')">Reject</button>` : `<button class="btn btn-danger btn-sm" onclick="deleteSuggestion('${s.id}')">Delete</button>`}</td></tr>`).join('')}</table></div></div>`;
+    
+    return `<div class="card">
+        <div class="table-container">
+            <table style="width:100%">
+                <thead>
+                    <tr style="background:var(--surface2)">
+                        <th>👤 User</th>
+                        <th>📅 Date & Time</th>
+                        <th>Section</th>
+                        <th>Question</th>
+                        <th>Options</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${sugs.map(s => `
+                        <tr>
+                            <td style="padding:8px">
+                                <strong>${escapeHtml(s.submittedBy || 'Anonymous')}</strong><br>
+                                <span style="font-size:0.65rem; color:var(--text3)">${s.submittedTime || ''}</span>
+                            </td>
+                            <td style="padding:8px; font-size:0.7rem; white-space:nowrap">${s.submittedDate || ''}<br>${s.submittedTime || ''}</td>
+                            <td><span class="badge badge-blue">${getSections().find(x=>x.id===s.section)?.name||s.section}</span></td>
+                            <td style="max-width:200px">${s.question}</td>
+                            <td style="font-size:.78rem">A: ${s.optionA}<br>B: ${s.optionB}<br>C: ${s.optionC}<br>D: ${s.optionD}</td>
+                            <td>
+                                ${status === 'pending' ? `<button class="btn btn-success btn-sm" onclick="approveSuggestion('${s.id}')">Approve</button> ` : ''}
+                                <button class="btn btn-warning btn-sm" onclick="openEditSuggestion('${s.id}')">Edit</button>
+                                ${status === 'pending' ? `<button class="btn btn-danger btn-sm" onclick="rejectSuggestion('${s.id}')">Reject</button>` : `<button class="btn btn-danger btn-sm" onclick="deleteSuggestion('${s.id}')">Delete</button>`}
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    </div>`;
 }
 
 function renderMCQsTable() {
@@ -2782,6 +3099,460 @@ function escapeHtml(text) {
 
 // Update renderAdminTab to include pdfs
 // Also update showPage to include pdf
+// ========== ESSAY SUGGESTION SYSTEM ==========
+
+let essaySuggestionsCache = [];
+let generalSuggestionsCache = [];
+
+// Load essay suggestions
+async function loadEssaySuggestions() {
+    const snap = await db.ref('essay_suggestions').once('value');
+    essaySuggestionsCache = snap.val() || [];
+    return essaySuggestionsCache;
+}
+
+async function saveEssaySuggestions() {
+    await db.ref('essay_suggestions').set(essaySuggestionsCache);
+}
+
+// Load general suggestions
+async function loadGeneralSuggestions() {
+    const snap = await db.ref('general_suggestions').once('value');
+    generalSuggestionsCache = snap.val() || [];
+    return generalSuggestionsCache;
+}
+
+async function saveGeneralSuggestions() {
+    await db.ref('general_suggestions').set(generalSuggestionsCache);
+}
+
+// Submit Essay Suggestion
+window.submitEssaySuggestion = async function() {
+    // Check if user is logged in
+    if (!currentUser || currentUser === "") {
+        showToast('Please login first!', 'error');
+        return;
+    }
+    
+    const type = document.getElementById('essay-suggest-type').value;
+    const title = document.getElementById('essay-suggest-title').value.trim();
+    const content = document.getElementById('essay-suggest-content').value.trim();
+    
+    if (!title) { showToast('Please enter essay title!', 'error'); return; }
+    if (!content) { showToast('Please write essay content!', 'error'); return; }
+    
+    await loadEssaySuggestions();
+    
+    const now = new Date();
+    const submittedAt = now.toLocaleString('en-PK', { timeZone: 'Asia/Karachi' });
+    const submittedDate = now.toLocaleDateString('en-PK');
+    const submittedTime = now.toLocaleTimeString('en-PK');
+    
+    essaySuggestionsCache.push({
+        id: uid(),
+        type: type,
+        title: title,
+        content: content,
+        status: 'pending',
+        submittedBy: currentUser,
+        submittedByName: currentUser,
+        submittedAt: submittedAt,
+        submittedDate: submittedDate,
+        submittedTime: submittedTime,
+        timestamp: Date.now()
+    });
+    
+    await saveEssaySuggestions();
+    
+    document.getElementById('essay-suggest-title').value = '';
+    document.getElementById('essay-suggest-content').value = '';
+    
+    showToast('✅ Essay submitted for admin review!', 'success');
+};
+
+// Submit General Suggestion with Rating
+let selectedRating = 0;
+
+window.setRating = function(rating) {
+    selectedRating = rating;
+    document.getElementById('general-suggest-rating').value = rating;
+    
+    const stars = document.querySelectorAll('.rating-stars span');
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.innerHTML = '★';
+            star.classList.add('active');
+        } else {
+            star.innerHTML = '☆';
+            star.classList.remove('active');
+        }
+    });
+};
+
+window.submitGeneralSuggestion = async function() {
+    // Check if user is logged in
+    if (!currentUser || currentUser === "") {
+        showToast('Please login first!', 'error');
+        return;
+    }
+    
+    const rating = parseInt(document.getElementById('general-suggest-rating').value);
+    const suggestion = document.getElementById('general-suggest-text').value.trim();
+    let name = document.getElementById('general-suggest-name').value.trim();
+    
+    if (!suggestion) { showToast('Please write your suggestion!', 'error'); return; }
+    if (rating === 0) { showToast('Please select a rating!', 'error'); return; }
+    
+    // If user didn't enter name, use currentUser
+    if (!name) {
+        name = currentUser;
+    }
+    
+    await loadGeneralSuggestions();
+    
+    const now = new Date();
+    const submittedAt = now.toLocaleString('en-PK', { timeZone: 'Asia/Karachi' });
+    const submittedDate = now.toLocaleDateString('en-PK');
+    const submittedTime = now.toLocaleTimeString('en-PK');
+    
+    generalSuggestionsCache.push({
+        id: uid(),
+        rating: rating,
+        suggestion: suggestion,
+        name: name,
+        submittedBy: currentUser,
+        submittedByName: name,
+        submittedAt: submittedAt,
+        submittedDate: submittedDate,
+        submittedTime: submittedTime,
+        status: 'pending',
+        timestamp: Date.now()
+    });
+    
+    await saveGeneralSuggestions();
+    
+    document.getElementById('general-suggest-text').value = '';
+    document.getElementById('general-suggest-name').value = '';
+    setRating(0);
+    document.getElementById('general-suggest-rating').value = 0;
+    
+    showToast('✅ Thank you for your suggestion!', 'success');
+};
+
+// ========== ADMIN FUNCTIONS FOR SUGGESTIONS ==========
+
+// Render Essay Pending for Admin
+async function renderEssayPending() {
+    await loadEssaySuggestions();
+    const pending = essaySuggestionsCache.filter(s => s.status === 'pending');
+    const container = document.getElementById('admin-tab-content');
+    
+    if (!pending.length) {
+        container.innerHTML = `<div class="card" style="text-align:center">📭 No pending essay suggestions.</div>`;
+        return;
+    }
+    
+    let html = `<div class="card"><h3>📝 Pending Essay Suggestions (${pending.length})</h3>`;
+    pending.forEach(essay => {
+        html += `
+            <div class="essay-card" style="margin-bottom:16px; border-left:4px solid var(--warning)">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:8px">
+                    <div><span class="badge ${essay.type === 'Argumentative' ? 'badge-blue' : 'badge-gold'}">${essay.type}</span></div>
+                    <div style="font-size:0.7rem; color:var(--text3)">📅 ${essay.submittedAt || essay.submittedDate}</div>
+                </div>
+                <div style="margin-bottom:8px; padding:6px; background:var(--surface2); border-radius:8px; display:inline-block">
+                    👤 <strong>Submitted by:</strong> ${escapeHtml(essay.submittedBy || 'Anonymous')} &nbsp;|&nbsp;
+                    ⏰ ${essay.submittedTime || ''}
+                </div>
+                <h4>📌 ${escapeHtml(essay.title)}</h4>
+                <p style="margin:10px 0; padding:10px; background:var(--surface2); border-radius:8px">${escapeHtml(essay.content.substring(0, 300))}${essay.content.length > 300 ? '...' : ''}</p>
+                <div class="pdf-actions">
+                    <button class="btn btn-success btn-sm" onclick="approveEssay('${essay.id}')">✅ Approve & Publish</button>
+                    <button class="btn btn-warning btn-sm" onclick="editEssaySuggestion('${essay.id}')">✏️ Edit</button>
+                    <button class="btn btn-danger btn-sm" onclick="rejectEssaySuggestion('${essay.id}')">❌ Reject</button>
+                </div>
+            </div>
+        `;
+    });
+    html += `</div>`;
+    container.innerHTML = html;
+}
+
+// Render General Suggestions for Admin
+// Render General Suggestions for Admin (with ratings analytics)
+async function renderGeneralSuggestions() {
+    await loadGeneralSuggestions();
+    const suggestions = generalSuggestionsCache;  // Show all, not just pending
+    const container = document.getElementById('admin-tab-content');
+    
+    // Calculate rating statistics
+    let totalRatings = 0;
+    let ratingSum = 0;
+    let ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    
+    suggestions.forEach(sug => {
+        if (sug.rating && sug.rating >= 1 && sug.rating <= 5) {
+            totalRatings++;
+            ratingSum += sug.rating;
+            ratingCounts[sug.rating]++;
+        }
+    });
+    
+    const averageRating = totalRatings > 0 ? (ratingSum / totalRatings).toFixed(1) : 0;
+    const averagePercent = (averageRating / 5) * 100;
+    
+    let html = `
+        <div class="rating-summary">
+            <div style="font-size:0.8rem; color:#92400e; margin-bottom:5px">Overall Platform Rating</div>
+            <div class="rating-big">${averageRating} / 5.0</div>
+            <div class="rating-stars-big" style="color:var(--gold); margin:8px 0">
+                ${'★'.repeat(Math.floor(averageRating))}${'☆'.repeat(5 - Math.floor(averageRating))}
+            </div>
+            <div style="font-size:0.75rem; color:#92400e">Based on ${totalRatings} ratings</div>
+            <div style="margin-top:15px">
+                <div class="rating-bar-container">
+                    <div class="rating-bar-label">5 ★</div>
+                    <div class="rating-bar"><div class="rating-bar-fill" style="width: ${totalRatings ? (ratingCounts[5] / totalRatings) * 100 : 0}%"></div></div>
+                    <div class="rating-bar-count">${ratingCounts[5]}</div>
+                </div>
+                <div class="rating-bar-container">
+                    <div class="rating-bar-label">4 ★</div>
+                    <div class="rating-bar"><div class="rating-bar-fill" style="width: ${totalRatings ? (ratingCounts[4] / totalRatings) * 100 : 0}%"></div></div>
+                    <div class="rating-bar-count">${ratingCounts[4]}</div>
+                </div>
+                <div class="rating-bar-container">
+                    <div class="rating-bar-label">3 ★</div>
+                    <div class="rating-bar"><div class="rating-bar-fill" style="width: ${totalRatings ? (ratingCounts[3] / totalRatings) * 100 : 0}%"></div></div>
+                    <div class="rating-bar-count">${ratingCounts[3]}</div>
+                </div>
+                <div class="rating-bar-container">
+                    <div class="rating-bar-label">2 ★</div>
+                    <div class="rating-bar"><div class="rating-bar-fill" style="width: ${totalRatings ? (ratingCounts[2] / totalRatings) * 100 : 0}%"></div></div>
+                    <div class="rating-bar-count">${ratingCounts[2]}</div>
+                </div>
+                <div class="rating-bar-container">
+                    <div class="rating-bar-label">1 ★</div>
+                    <div class="rating-bar"><div class="rating-bar-fill" style="width: ${totalRatings ? (ratingCounts[1] / totalRatings) * 100 : 0}%"></div></div>
+                    <div class="rating-bar-count">${ratingCounts[1]}</div>
+                </div>
+            </div>
+            <div class="rating-stats-grid">
+                <div class="rating-stat-card"><div class="rating-stat-value">${totalRatings}</div><div class="rating-stat-label">Total Ratings</div></div>
+                <div class="rating-stat-card"><div class="rating-stat-value">${averageRating}</div><div class="rating-stat-label">Average</div></div>
+                <div class="rating-stat-card"><div class="rating-stat-value">${ratingCounts[5]}</div><div class="rating-stat-label">5 Stars</div></div>
+                <div class="rating-stat-card"><div class="rating-stat-value">${ratingCounts[1]}</div><div class="rating-stat-label">1 Star</div></div>
+                <div class="rating-stat-card"><div class="rating-stat-value">${Math.round(averagePercent)}%</div><div class="rating-stat-label">Satisfaction</div></div>
+            </div>
+        </div>
+        
+        <div class="card" style="margin-top:20px">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; margin-bottom:16px">
+                <h3>💬 All User Feedback (${suggestions.length})</h3>
+                <div>
+                    <select id="rating-filter" onchange="filterSuggestionsByRating()" style="width:auto; padding:6px 12px">
+                        <option value="all">All Ratings</option>
+                        <option value="5">★★★★★ (5)</option>
+                        <option value="4">★★★★☆ (4)</option>
+                        <option value="3">★★★☆☆ (3)</option>
+                        <option value="2">★★☆☆☆ (2)</option>
+                        <option value="1">★☆☆☆☆ (1)</option>
+                    </select>
+                </div>
+            </div>
+            <div id="suggestions-list">
+                ${renderSuggestionsList(suggestions)}
+            </div>
+        </div>
+    `;
+    container.innerHTML = html;
+}
+
+function renderSuggestionsList(suggestions) {
+    if (!suggestions.length) {
+        return '<p style="text-align:center; padding:20px">💬 No suggestions yet.</p>';
+    }
+    
+    let html = '';
+    suggestions.forEach(sug => {
+        const stars = '★'.repeat(sug.rating) + '☆'.repeat(5 - sug.rating);
+        const statusBadge = sug.status === 'read' ? '<span class="badge badge-green" style="margin-left:8px">Read</span>' : '<span class="badge badge-warning" style="margin-left:8px">New</span>';
+        
+        html += `
+            <div class="essay-card" style="margin-bottom:16px; border-left:4px solid var(--gold)">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap">
+                    <div>
+                        <span class="badge badge-gold" style="font-size:1rem; background:#fef3c7">${stars}</span>
+                        ${statusBadge}
+                    </div>
+                    <div style="font-size:0.7rem; color:var(--text3)">📅 ${sug.submittedAt || sug.submittedDate}</div>
+                </div>
+                <div style="margin:10px 0; padding:8px; background:var(--surface2); border-radius:8px; display:flex; justify-content:space-between; flex-wrap:wrap">
+                    <span>👤 <strong>Portal Name:</strong> ${escapeHtml(sug.submittedBy || 'Anonymous')}</span>
+                    <span>📝 <strong>Given Name:</strong> ${escapeHtml(sug.submittedByName || sug.name || '-')}</span>
+                    <span>⏰ <strong>Time:</strong> ${sug.submittedTime || ''}</span>
+                </div>
+                <p style="margin:10px 0; padding:10px; background:var(--surface2); border-radius:8px">💬 ${escapeHtml(sug.suggestion)}</p>
+                <div class="pdf-actions">
+                    <button class="btn btn-success btn-sm" onclick="markSuggestionRead('${sug.id}')">✅ Mark as Read</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteGeneralSuggestion('${sug.id}')">🗑 Delete</button>
+                </div>
+            </div>
+        `;
+    });
+    return html;
+}
+
+// Filter suggestions by rating
+window.filterSuggestionsByRating = function() {
+    const filter = document.getElementById('rating-filter').value;
+    let filtered = [...generalSuggestionsCache];
+    
+    if (filter !== 'all') {
+        filtered = filtered.filter(s => s.rating === parseInt(filter));
+    }
+    
+    document.getElementById('suggestions-list').innerHTML = renderSuggestionsList(filtered);
+};
+
+// Approve Essay (Add to published essays)
+window.approveEssay = async function(id) {
+    const essay = essaySuggestionsCache.find(e => e.id === id);
+    if (essay) {
+        essay.status = 'approved';
+        await saveEssaySuggestions();
+        
+        // Add to published essays
+        await refreshAllData();
+        essaysCache.push({
+            id: uid(),
+            type: essay.type,
+            title: essay.title,
+            content: essay.content
+        });
+        await commitEssays();
+        await refreshAllData();
+        
+        showToast('✅ Essay approved and published!', 'success');
+        renderEssayPending();
+        
+        // Refresh essays page if open
+        if (document.getElementById('page-essays').classList.contains('active')) {
+            renderEssays(essay.type);
+        }
+    }
+};
+
+// Edit Essay Suggestion
+window.editEssaySuggestion = async function(id) {
+    const essay = essaySuggestionsCache.find(e => e.id === id);
+    if (!essay) return;
+    
+    const newTitle = prompt('Edit title:', essay.title);
+    if (newTitle) essay.title = newTitle;
+    
+    const newContent = prompt('Edit content:', essay.content.substring(0, 200) + '...');
+    if (newContent) essay.content = newContent;
+    
+    await saveEssaySuggestions();
+    showToast('✅ Essay updated!', 'success');
+    renderEssayPending();
+};
+
+// Reject Essay Suggestion
+window.rejectEssaySuggestion = async function(id) {
+    if (confirm('Reject this essay suggestion?')) {
+        essaySuggestionsCache = essaySuggestionsCache.filter(e => e.id !== id);
+        await saveEssaySuggestions();
+        showToast('❌ Essay suggestion rejected and removed!', 'success');
+        renderEssayPending();
+    }
+};
+
+// Mark General Suggestion as Read
+window.markSuggestionRead = async function(id) {
+    const sug = generalSuggestionsCache.find(s => s.id === id);
+    if (sug) {
+        sug.status = 'read';
+        await saveGeneralSuggestions();
+        showToast('✅ Suggestion marked as read!', 'success');
+        renderGeneralSuggestions();
+    }
+};
+
+// Delete General Suggestion
+window.deleteGeneralSuggestion = async function(id) {
+    if (confirm('Delete this suggestion?')) {
+        generalSuggestionsCache = generalSuggestionsCache.filter(s => s.id !== id);
+        await saveGeneralSuggestions();
+        showToast('🗑 Suggestion deleted!', 'success');
+        renderGeneralSuggestions();
+    }
+};
+// Load and display overall rating on home page
+async function loadHomePageRating() {
+    await loadGeneralSuggestions();
+    
+    let totalRatings = 0;
+    let ratingSum = 0;
+    let ratingCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    
+    generalSuggestionsCache.forEach(sug => {
+        if (sug.rating && sug.rating >= 1 && sug.rating <= 5) {
+            totalRatings++;
+            ratingSum += sug.rating;
+            ratingCounts[sug.rating]++;
+        }
+    });
+    
+    const averageRating = totalRatings > 0 ? (ratingSum / totalRatings).toFixed(1) : 0;
+    const fullStars = Math.floor(averageRating);
+    const hasHalfStar = (averageRating - fullStars) >= 0.5;
+    
+    // Create star display
+    let starsHtml = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= fullStars) {
+            starsHtml += '<span style="color: #fbbf24; font-size: 1.2rem;">★</span>';
+        } else if (i === fullStars + 1 && hasHalfStar) {
+            starsHtml += '<span style="color: #fbbf24; font-size: 1.2rem;">½</span>';
+        } else {
+            starsHtml += '<span style="color: #cbd5e1; font-size: 1.2rem;">☆</span>';
+        }
+    }
+    
+    const ratingPercent = totalRatings > 0 ? Math.round((averageRating / 5) * 100) : 0;
+    
+    const ratingHtml = `
+        <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 1rem; padding: 0.8rem 1.2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="background: white; width: 45px; height: 45px; border-radius: 45px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                    ⭐
+                </div>
+                <div>
+                    <div style="font-size: 0.7rem; color: #92400e;">Community Rating</div>
+                    <div style="font-size: 1.3rem; font-weight: 800; color: #92400e;">${averageRating} / 5.0</div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                ${starsHtml}
+                <span style="font-size: 0.75rem; color: #92400e;">(${totalRatings} votes)</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="background: white; padding: 4px 12px; border-radius: 30px;">
+                    <span style="font-size: 0.7rem; color: #92400e;">⭐ ${ratingPercent}% satisfied</span>
+                </div>
+                <button onclick="showPage('general-suggest')" style="background: #92400e; border: none; color: white; padding: 6px 14px; border-radius: 30px; font-size: 0.7rem; cursor: pointer; font-weight: 500;">
+                    Rate Us 💬
+                </button>
+            </div>
+        </div>
+    `;
+    
+    const container = document.getElementById('home-rating-container');
+    if (container) {
+        container.innerHTML = ratingHtml;
+    }
+}
 </script>
 
 </body>
